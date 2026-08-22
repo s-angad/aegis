@@ -29,8 +29,8 @@ export function useSimulation() {
       useSimulationStore.getState().resetSimulationStore()
       return post(`/api/simulation/create_run?run_type=aegis${seed ? `&seed=${seed}` : ''}`)
     },
-    start: (disasterType: string = 'flood', seed?: number) => {
-      return post(`/api/simulation/start?disaster_type=${disasterType}${seed ? `&seed=${seed}` : ''}`)
+    start: (disasterType: string = 'flood', seed?: number, runType: string = 'baseline') => {
+      return post(`/api/simulation/start?disaster_type=${disasterType}${seed ? `&seed=${seed}` : ''}&run_type=${runType}`)
     },
     pause: () => {
       setSimulation({ is_paused: true, is_running: true, status: 'paused' })

@@ -39,6 +39,8 @@ class SimulationEngine:
         self.resources: List[Resource] = []
 
         self.timeline: List[Dict[str, Any]] = []
+        self.run_type: str = "baseline"
+        self.is_aegis_enabled: bool = False
         self._broadcast_callback: Optional[Callable[[str, Any], Awaitable[None]]] = None
         self._agent_callback: Optional[Callable[["SimulationEngine"], Awaitable[None]]] = None
         self._task: Optional[asyncio.Task] = None
@@ -71,33 +73,45 @@ class SimulationEngine:
 
     def _init_resources(self) -> List[Resource]:
         lat_base, lng_base = 28.6080, 77.2145
-        sc = self.scenario_config
-
-        # Randomized counts from scenario config or defaults
-        boat_count = sc.available_resources.get("rescue_boat", 4) if sc else 4
-        amb_count = sc.available_resources.get("ambulance", 4) if sc else 4
-        team_count = sc.available_resources.get("rescue_team", 6) if sc else 6
-
         resources = []
-        for i in range(boat_count):
+
+        # 1. 10 Rescue Boats
+        for i in range(10):
             resources.append(Resource(
-                id=f"RB-{i+1}", type=ResourceType.RESCUE_BOAT, name=f"Rescue Boat {i+1:02d}",
-                lat=lat_base + (i * 0.0003), lng=lng_base, home_lat=lat_base, home_lng=lng_base, crew_count=3
+                id=f"RB-{i+1:02d}", type=ResourceType.RESCUE_BOAT, name=f"Rescue Boat {i+1:02d}",
+                lat=lat_base + (i * 0.0003), lng=lng_base, home_lat=lat_base, home_lng=lng_base, crew_count=3, capacity=6
             ))
-        for i in range(amb_count):
+        # 2. 3 Helicopters
+        for i in range(3):
             resources.append(Resource(
-                id=f"AM-{i+1}", type=ResourceType.AMBULANCE, name=f"Ambulance {i+1:02d}",
-                lat=28.6110, lng=77.2060 + (i * 0.0003), home_lat=28.6110, home_lng=77.2060, crew_count=2
+                id=f"HC-{i+1:02d}", type=ResourceType.HELICOPTER, name=f"Rescue Helicopter {i+1:02d}",
+                lat=28.6200 + (i * 0.0004), lng=77.2090, home_lat=28.6200, home_lng=77.2090, crew_count=4, capacity=8
             ))
-        for i in range(team_count):
+        # 3. 7 Ambulances
+        for i in range(7):
             resources.append(Resource(
-                id=f"RT-{i+1}", type=ResourceType.RESCUE_TEAM, name=f"Rescue Crew {i+1:02d}",
-                lat=lat_base - 0.0010, lng=lng_base + (i * 0.0003), home_lat=lat_base - 0.0010, home_lng=lng_base, crew_count=5
+                id=f"AM-{i+1:02d}", type=ResourceType.AMBULANCE, name=f"Ambulance {i+1:02d}",
+                lat=28.6110, lng=77.2060 + (i * 0.0003), home_lat=28.6110, home_lng=77.2060, crew_count=2, capacity=2
             ))
-        resources.append(Resource(
-            id="HC-1", type=ResourceType.HELICOPTER, name="Helicopter Falcon",
-            lat=28.6200, lng=77.2090, home_lat=28.6200, home_lng=77.2090, crew_count=4, capacity=6
-        ))
+        # 4. 5 Water Pumps
+        for i in range(5):
+            resources.append(Resource(
+                id=f"WP-{i+1:02d}", type=ResourceType.WATER_PUMP, name=f"High-Cap Water Pump {i+1:02d}",
+                lat=28.6050 + (i * 0.0005), lng=77.2180, home_lat=28.6050, home_lng=77.2180, crew_count=3, capacity=1
+            ))
+        # 5. 6 Relief Teams
+        for i in range(6):
+            resources.append(Resource(
+                id=f"RT-{i+1:02d}", type=ResourceType.RELIEF_TEAM, name=f"Disaster Relief Team {i+1:02d}",
+                lat=lat_base - 0.0010, lng=lng_base + (i * 0.0003), home_lat=lat_base - 0.0010, home_lng=lng_base, crew_count=5, capacity=200
+            ))
+        # 6. 6 NGO Organizations (500+ volunteers)
+        for i in range(6):
+            resources.append(Resource(
+                id=f"NGO-{i+1:02d}", type=ResourceType.NGO_VOLUNTEER, name=f"NGO Volunteer Unit {i+1:02d}",
+                lat=28.6020, lng=77.2100 + (i * 0.0004), home_lat=28.6020, home_lng=77.2100, crew_count=85, capacity=500
+            ))
+
         return resources
 
     def set_broadcast_callback(self, cb: Callable[[str, Any], Awaitable[None]]):
@@ -171,6 +185,9 @@ class SimulationEngine:
             if shelter.current_occupancy >= int(shelter.capacity * 0.95):
                 shelter.status = ShelterStatus.FULL
 
+    def get_available_resources(self) -> List[Resource]:
+        return [r for r in self.resources if r.status.value in ("available", "standby")]
+
     async def _run_loop(self):
         sc = self.scenario_config
         try:
@@ -234,12 +251,16 @@ class SimulationEngine:
                     }
                 })
 
-                # --- Invoke Multi-Agent OODA Loop Callback ---
-                if self._agent_callback:
+                # --- Invoke Multi-Agent OODA Loop Callback Every 3 Ticks (PAUSING FLOOD PHYSICS DURING AGENT EXECUTION) ---
+                if self.is_aegis_enabled and self._agent_callback and (self.tick > 0 and self.tick % 3 == 0):
+                    print(f"[SIMULATION] TICK {self.tick} — [PAUSE] PAUSING FLOOD SIMULATION FOR AEGIS")
+                    await self._broadcast("simulation_control", {"action": "paused_for_aegis", "tick": self.tick})
                     try:
                         await self._agent_callback(self)
                     except Exception as e:
                         print(f"[SIM ENGINE WARNING] Agent callback exception at tick {self.tick}: {e}")
+                    print(f"[SIMULATION] TICK {self.tick} — [RESUME] AEGIS CYCLE COMPLETE — RESUMING FLOOD SIMULATION")
+                    await self._broadcast("simulation_control", {"action": "resumed_after_aegis", "tick": self.tick})
 
                 # --- Sleep based on speed setting ---
                 interval = max(0.05, self.tick_interval / max(0.1, self.speed))

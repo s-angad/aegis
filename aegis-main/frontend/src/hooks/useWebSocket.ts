@@ -19,7 +19,7 @@ export function useWebSocket() {
   const { setSimulation, setFloodState, setFloodGeoJSON, addTimelineEntry, setNarrative } = useSimulationStore()
   const { setIncidents } = useIncidentStore()
   const { setResources, setShelters } = useResourceStore()
-  const { addDecision, addAlert, setPrediction, setRoutes, clearAll, setDroneTelemetry, setPolicyRecommendations } = useAgentStore()
+  const { addDecision, addAlert, setPrediction, setRoutes, clearAll, setDroneTelemetry, setPolicyRecommendations, setOodaState, setOodaStageResult, addOodaHistory } = useAgentStore()
   const { setLatestObservation, setConfig, clearRecon } = useReconStore()
 
   const handleMessage = useCallback((msg: WSMessage) => {
@@ -72,8 +72,8 @@ export function useWebSocket() {
           setIncidents([])
         }
         if (d.action === 'started') setSimulation({ is_running: true, is_paused: false, status: 'running', disaster_type: d.disaster_type, scenario: d.scenario })
-        if (d.action === 'paused') setSimulation({ is_paused: true, status: 'paused' })
-        if (d.action === 'resumed') setSimulation({ is_paused: false, is_running: true, status: 'running' })
+        if (d.action === 'paused' || d.action === 'paused_for_aegis') setSimulation({ is_paused: true, status: 'paused' })
+        if (d.action === 'resumed' || d.action === 'resumed_after_aegis') setSimulation({ is_paused: false, is_running: true, status: 'running' })
         if (d.action === 'speed_change' && d.speed) setSimulation({ speed: d.speed })
         break
       }
@@ -84,7 +84,6 @@ export function useWebSocket() {
         setSimulation({
           ...(d.tick !== undefined ? { tick: d.tick } : {}),
           is_running: true,
-          is_paused: false,
           status: 'running',
           ...(d.scenario ? { scenario: d.scenario } : {}),
         })
@@ -140,10 +139,32 @@ export function useWebSocket() {
         setConfig(data as Partial<ReconConfig>)
         break
       }
+      case 'ooda_cycle_started': {
+        const d = data as { cycle: number; stage: string }
+        setOodaState(d.cycle, d.stage || 'OBSERVE')
+        break
+      }
+      case 'ooda_stage_started': {
+        const d = data as { cycle: number; stage: string }
+        setOodaState(d.cycle, d.stage)
+        break
+      }
+      case 'ooda_stage_completed': {
+        const d = data as { cycle: number; stage: string; result: any }
+        setOodaStageResult(d.stage, d.result)
+        break
+      }
+      case 'ooda_cycle_completed': {
+        const d = data as { cycle: number; summary: any }
+        addOodaHistory(d.summary)
+        setOodaState(d.cycle, 'COMPLETED')
+        break
+      }
     }
   }, [setSimulation, setFloodState, setFloodGeoJSON, addTimelineEntry, setNarrative,
       setIncidents, setResources, setShelters, addDecision, addAlert, setPrediction, setRoutes,
-      clearAll, setDroneTelemetry, setPolicyRecommendations, setLatestObservation, setConfig, clearRecon])
+      clearAll, setDroneTelemetry, setPolicyRecommendations, setLatestObservation, setConfig, clearRecon,
+      setOodaState, setOodaStageResult, addOodaHistory])
 
   const connect = useCallback(() => {
     if (wsRef.current?.readyState === WebSocket.OPEN) return

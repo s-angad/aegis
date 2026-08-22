@@ -10,6 +10,9 @@ class ResourceType(str, Enum):
     AMBULANCE = "ambulance"
     RESCUE_TEAM = "rescue_team"
     HELICOPTER = "helicopter"
+    WATER_PUMP = "water_pump"
+    RELIEF_TEAM = "relief_team"
+    NGO_VOLUNTEER = "ngo_volunteer"
     FIRE_ENGINE = "fire_engine"
     HAZMAT_UNIT = "hazmat_unit"
     UTILITY_TRUCK = "utility_truck"
@@ -17,9 +20,11 @@ class ResourceType(str, Enum):
 
 class ResourceStatus(str, Enum):
     AVAILABLE = "available"
+    ALLOCATED = "allocated"
     DISPATCHED = "dispatched"
     EN_ROUTE = "en_route"
     ON_SCENE = "on_scene"
+    ACTIVE = "active"
     RETURNING = "returning"
     UNAVAILABLE = "unavailable"
 

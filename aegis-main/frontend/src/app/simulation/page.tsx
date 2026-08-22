@@ -5,6 +5,7 @@ import StoryHeader from '@/components/story/StoryHeader'
 import TechnicalDetailsDrawer from '@/components/drawers/TechnicalDetailsDrawer'
 import SpeedController from '@/components/simulation/SpeedController'
 import AegisPipelineController from '@/components/demo/AegisPipelineController'
+import { AegisDecisionModalOverlay } from '@/components/demo/AegisDecisionModalOverlay'
 import { useWebSocket } from '@/hooks/useWebSocket'
 
 const CityMap = dynamic(() => import('@/components/map/CityMap'), {
@@ -44,7 +45,10 @@ export default function SimulationStagePage() {
       {/* 4. EXPLICIT AEGIS OODA RESPONSE PIPELINE CONTROLLER */}
       <AegisPipelineController />
 
-      {/* 5. SYSTEM DETAILS DRAWER MODAL */}
+      {/* 5. LIVE 5-STEP DECISION POPUP EXPERIENCE OVERLAY */}
+      <AegisDecisionModalOverlay />
+
+      {/* 6. SYSTEM DETAILS DRAWER MODAL */}
       <TechnicalDetailsDrawer
         isOpen={drawerOpen}
         onClose={() => setDrawerOpen(false)}

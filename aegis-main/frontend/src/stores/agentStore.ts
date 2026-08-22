@@ -44,12 +44,19 @@ interface AgentStore {
   routes: Record<string, number[][]>
   droneTelemetry: any | null
   policyRecommendations: string[]
+  oodaCycle: number
+  oodaStage: string
+  oodaHistory: any[]
+  oodaStageResults: Record<string, any>
   addDecision: (decision: unknown) => void
   addAlert: (alert: unknown) => void
   setPrediction: (p: Prediction) => void
   setRoutes: (r: Record<string, number[][]>) => void
   setDroneTelemetry: (t: any) => void
   setPolicyRecommendations: (r: string[]) => void
+  setOodaState: (cycle: number, stage: string) => void
+  setOodaStageResult: (stage: string, result: any) => void
+  addOodaHistory: (record: any) => void
   clearAll: () => void
 }
 
@@ -60,6 +67,10 @@ export const useAgentStore = create<AgentStore>((set) => ({
   routes: {},
   droneTelemetry: null,
   policyRecommendations: [],
+  oodaCycle: 0,
+  oodaStage: 'IDLE',
+  oodaHistory: [],
+  oodaStageResults: {},
   addDecision: (raw) =>
     set((state) => ({
       decisions: [normalizeDecision(raw), ...state.decisions].slice(0, MAX_DECISIONS),
@@ -72,5 +83,15 @@ export const useAgentStore = create<AgentStore>((set) => ({
   setRoutes: (r) => set({ routes: r }),
   setDroneTelemetry: (t) => set({ droneTelemetry: t }),
   setPolicyRecommendations: (r) => set({ policyRecommendations: r }),
-  clearAll: () => set({ decisions: [], alerts: [], prediction: null, routes: {}, droneTelemetry: null, policyRecommendations: [] }),
+  setOodaState: (cycle, stage) => set({ oodaCycle: cycle, oodaStage: stage }),
+  setOodaStageResult: (stage, result) => set((state) => ({
+    oodaStageResults: { ...state.oodaStageResults, [stage]: result }
+  })),
+  addOodaHistory: (record) => set((state) => ({
+    oodaHistory: [...state.oodaHistory.filter(h => h.cycle !== record.cycle), record]
+  })),
+  clearAll: () => set({
+    decisions: [], alerts: [], prediction: null, routes: {}, droneTelemetry: null, policyRecommendations: [],
+    oodaCycle: 0, oodaStage: 'IDLE', oodaHistory: [], oodaStageResults: {}
+  }),
 }))

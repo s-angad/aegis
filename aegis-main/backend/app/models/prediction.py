@@ -16,3 +16,27 @@ class Prediction(BaseModel):
     timestamp: datetime = Field(default_factory=datetime.utcnow)
     confidence_pct: int = 85
     next_3_ticks: List[Dict] = Field(default_factory=list)
+
+
+class CounterfactualOption(BaseModel):
+    id: str
+    name: str
+    description: str
+    projected_flooded_area_pct: int
+    projected_people_at_risk: int
+    projected_risk_score: int
+    lives_saved: int
+    risk_reduction_pct: int
+    is_recommended: bool = False
+
+
+class CounterfactualEvaluation(BaseModel):
+    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    current_tick: int
+    target_sector: str
+    current_flooded_area_pct: int
+    current_people_at_risk: int
+    current_risk_score: int
+    options: List[CounterfactualOption]
+    best_option_id: str
+

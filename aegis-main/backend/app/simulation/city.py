@@ -102,10 +102,11 @@ SECTOR_MAP: Dict[str, Tuple[int, int, int, int]] = {
 
 # Special locations
 SHELTER_LOCATIONS = [
-    {"name": "Shelter Alpha", "row": 1, "col": 1, "capacity": 500, "sector": "Sector-1"},
-    {"name": "Shelter Beta",  "row": 1, "col": 14, "capacity": 450, "sector": "Sector-4"},
-    {"name": "Shelter Gamma", "row": 14, "col": 1, "capacity": 400, "sector": "Sector-13"},
-    {"name": "Shelter Delta", "row": 14, "col": 14, "capacity": 480, "sector": "Sector-16"},
+    {"name": "Shelter 01", "row": 1, "col": 1, "capacity": 1000, "sector": "Sector-1"},
+    {"name": "Shelter 02", "row": 1, "col": 14, "capacity": 1000, "sector": "Sector-4"},
+    {"name": "Shelter 03", "row": 6, "col": 5, "capacity": 1000, "sector": "Sector-6"},
+    {"name": "Shelter 04", "row": 14, "col": 1, "capacity": 1000, "sector": "Sector-13"},
+    {"name": "Shelter 05", "row": 14, "col": 14, "capacity": 1000, "sector": "Sector-16"},
 ]
 
 HOSPITAL_LOCATION = {"row": 6, "col": 2, "sector": "Sector-5"}

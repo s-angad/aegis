@@ -22,11 +22,11 @@ SEVERITY_SCORE = {
 
 # Best resource type for incident type
 PREFERRED_RESOURCES = {
-    IncidentType.FLOOD: [ResourceType.RESCUE_BOAT, ResourceType.RESCUE_TEAM],
+    IncidentType.FLOOD: [ResourceType.RESCUE_BOAT, ResourceType.HELICOPTER, ResourceType.WATER_PUMP, ResourceType.RESCUE_TEAM],
     IncidentType.MEDICAL_EMERGENCY: [ResourceType.AMBULANCE, ResourceType.HELICOPTER],
-    IncidentType.EVACUATION_NEEDED: [ResourceType.RESCUE_BOAT, ResourceType.HELICOPTER, ResourceType.RESCUE_TEAM],
-    IncidentType.STRUCTURAL_DAMAGE: [ResourceType.RESCUE_TEAM, ResourceType.AMBULANCE],
-    IncidentType.ROAD_BLOCKED: [ResourceType.RESCUE_TEAM],
+    IncidentType.EVACUATION_NEEDED: [ResourceType.RESCUE_BOAT, ResourceType.HELICOPTER, ResourceType.RELIEF_TEAM, ResourceType.NGO_VOLUNTEER],
+    IncidentType.STRUCTURAL_DAMAGE: [ResourceType.RESCUE_TEAM, ResourceType.WATER_PUMP, ResourceType.AMBULANCE],
+    IncidentType.ROAD_BLOCKED: [ResourceType.RESCUE_TEAM, ResourceType.WATER_PUMP],
 }
 
 

@@ -116,6 +116,12 @@ class RoutingAgent:
             src = _lat_lng_to_grid(resource.lat, resource.lng, engine.city)
             dst = _lat_lng_to_grid(dest_lat, dest_lng, engine.city)
 
+            if G.nodes:
+                if src not in G:
+                    src = min(G.nodes, key=lambda n: _heuristic(n, src))
+                if dst not in G:
+                    dst = min(G.nodes, key=lambda n: _heuristic(n, dst))
+
             if src == dst:
                 self._routes[resource.id] = [[resource.lng, resource.lat]]
                 continue
@@ -134,7 +140,7 @@ class RoutingAgent:
                     routes_recalculated += 1
                 else:
                     routes_calculated += 1
-            except nx.NetworkXNoPath:
+            except (nx.NetworkXNoPath, nx.NodeNotFound):
                 blocked_routes += 1
                 # Fallback: straight line
                 self._routes[resource.id] = [

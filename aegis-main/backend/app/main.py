@@ -99,6 +99,8 @@ async def create_run(run_type: str = "aegis", seed: Optional[int] = None):
     global sim_engine, orchestrator
     sim_engine.stop()
     sim_engine = create_fresh_simulation(disaster_type="flood", seed=seed)
+    sim_engine.run_type = run_type
+    sim_engine.is_aegis_enabled = (run_type == "aegis")
     recon_service.reset()
     orchestrator = CommandOrchestrator()
     sim_engine.set_broadcast_callback(_broadcast_cb)
@@ -118,12 +120,14 @@ async def create_run(run_type: str = "aegis", seed: Optional[int] = None):
 
 
 @app.post("/api/simulation/start")
-async def start_simulation(disaster_type: str = "flood", seed: Optional[int] = None, force_new_run: bool = False):
+async def start_simulation(disaster_type: str = "flood", seed: Optional[int] = None, run_type: str = "baseline", force_new_run: bool = False):
     global sim_engine, orchestrator
 
     if force_new_run or seed is not None or sim_engine.tick >= 20 or sim_engine.tick == 0:
         sim_engine.stop()
         sim_engine = create_fresh_simulation(disaster_type=disaster_type, seed=seed)
+        sim_engine.run_type = run_type
+        sim_engine.is_aegis_enabled = (run_type == "aegis")
         recon_service.reset()
         orchestrator = CommandOrchestrator()
         sim_engine.set_broadcast_callback(_broadcast_cb)
@@ -196,6 +200,14 @@ async def reset_simulation(disaster_type: str = "flood", seed: Optional[int] = N
         "latest_recon": None,
     })
     return {"status": "reset", "disaster_type": disaster_type, "scenario": sim_engine.get_state_summary()["scenario"]}
+
+
+@app.post("/api/simulation/counterfactual")
+async def evaluate_counterfactual(target_sector: str = "Sector-4"):
+    from .agents.counterfactual import counterfactual_engine
+    evaluation = counterfactual_engine.evaluate_options(sim_engine, target_sector=target_sector)
+    await manager.broadcast("counterfactual_evaluated", evaluation.model_dump(mode="json"))
+    return evaluation.model_dump(mode="json")
 
 
 @app.post("/api/simulation/speed")
