@@ -5,16 +5,17 @@ import { useAgentStore } from '@/stores/agentStore'
 import { useReconStore } from '@/stores/reconStore'
 import { useResourceStore } from '@/stores/resourceStore'
 import { useSimulationStore } from '@/stores/simulationStore'
-import { X, Cpu, Eye, LifeBuoy, Home, Terminal, Radio } from 'lucide-react'
+import { X, Cpu, Eye, LifeBuoy, Home, Terminal, Radio, ShieldCheck } from 'lucide-react'
+import { AuditLogTab } from '@/components/privacy/AuditLogTab'
 
 interface TechnicalDetailsDrawerProps {
   isOpen: boolean
   onClose: () => void
-  initialTab?: 'agents' | 'recon' | 'resources' | 'shelters'
+  initialTab?: 'agents' | 'recon' | 'resources' | 'shelters' | 'privacy'
 }
 
 export default function TechnicalDetailsDrawer({ isOpen, onClose, initialTab = 'agents' }: TechnicalDetailsDrawerProps) {
-  const [tab, setTab] = useState<'agents' | 'recon' | 'resources' | 'shelters'>(initialTab)
+  const [tab, setTab] = useState<'agents' | 'recon' | 'resources' | 'shelters' | 'privacy'>(initialTab)
 
   const { decisions, prediction, alerts } = useAgentStore()
   const { latestObservation, history } = useReconStore()
@@ -44,7 +45,7 @@ export default function TechnicalDetailsDrawer({ isOpen, onClose, initialTab = '
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-            className="fixed top-0 right-0 bottom-0 w-[480px] bg-[#0d1322] border-l border-slate-800 z-50 flex flex-col font-sans select-none text-white shadow-2xl"
+            className="fixed top-0 right-0 bottom-0 w-[520px] max-w-full bg-[#0d1322] border-l border-slate-800 z-50 flex flex-col font-sans select-none text-white shadow-2xl"
           >
             {/* Header */}
             <div className="p-4 border-b border-slate-800 flex items-center justify-between bg-[#090d16]">
@@ -63,42 +64,51 @@ export default function TechnicalDetailsDrawer({ isOpen, onClose, initialTab = '
             </div>
 
             {/* Tab Selector */}
-            <div className="flex border-b border-slate-800 bg-[#090d16]/50 p-1 gap-1 text-xs font-mono">
+            <div className="flex border-b border-slate-800 bg-[#090d16]/50 p-1 gap-1 text-[11px] font-mono overflow-x-auto">
               <button
                 onClick={() => setTab('agents')}
-                className={`flex-1 py-2 rounded-lg font-bold flex items-center justify-center gap-1.5 transition-all ${
+                className={`flex-1 py-2 px-2 rounded-lg font-bold flex items-center justify-center gap-1 transition-all whitespace-nowrap ${
                   tab === 'agents' ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/40' : 'text-slate-400 hover:text-slate-200'
                 }`}
               >
-                <Cpu size={14} />
+                <Cpu size={13} />
                 OODA Agents
               </button>
               <button
                 onClick={() => setTab('recon')}
-                className={`flex-1 py-2 rounded-lg font-bold flex items-center justify-center gap-1.5 transition-all ${
+                className={`flex-1 py-2 px-2 rounded-lg font-bold flex items-center justify-center gap-1 transition-all whitespace-nowrap ${
                   tab === 'recon' ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/40' : 'text-slate-400 hover:text-slate-200'
                 }`}
               >
-                <Eye size={14} />
+                <Eye size={13} />
                 CV Recon
               </button>
               <button
                 onClick={() => setTab('resources')}
-                className={`flex-1 py-2 rounded-lg font-bold flex items-center justify-center gap-1.5 transition-all ${
+                className={`flex-1 py-2 px-2 rounded-lg font-bold flex items-center justify-center gap-1 transition-all whitespace-nowrap ${
                   tab === 'resources' ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/40' : 'text-slate-400 hover:text-slate-200'
                 }`}
               >
-                <LifeBuoy size={14} />
+                <LifeBuoy size={13} />
                 Resources
               </button>
               <button
                 onClick={() => setTab('shelters')}
-                className={`flex-1 py-2 rounded-lg font-bold flex items-center justify-center gap-1.5 transition-all ${
+                className={`flex-1 py-2 px-2 rounded-lg font-bold flex items-center justify-center gap-1 transition-all whitespace-nowrap ${
                   tab === 'shelters' ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/40' : 'text-slate-400 hover:text-slate-200'
                 }`}
               >
-                <Home size={14} />
+                <Home size={13} />
                 Shelters
+              </button>
+              <button
+                onClick={() => setTab('privacy')}
+                className={`flex-1 py-2 px-2 rounded-lg font-bold flex items-center justify-center gap-1 transition-all whitespace-nowrap ${
+                  tab === 'privacy' ? 'bg-amber-500/20 text-amber-400 border border-amber-500/40' : 'text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                <ShieldCheck size={13} />
+                Privacy Audit
               </button>
             </div>
 
@@ -137,27 +147,14 @@ export default function TechnicalDetailsDrawer({ isOpen, onClose, initialTab = '
               {tab === 'recon' && (
                 <div className="space-y-3">
                   {latestObservation ? (
-                    <>
-                      <div className="p-3 rounded-xl bg-slate-900/80 border border-slate-800 text-[11px] space-y-1.5">
-                        <div className="text-cyan-400 font-bold flex justify-between">
-                          <span>FRAME #{latestObservation.frame_number}</span>
-                          <span>CONF: {latestObservation.confidence}%</span>
-                        </div>
-                        <div className="text-slate-300">Flood Area: {latestObservation.flood_area_percent.toFixed(1)}%</div>
-                        <div className="text-slate-300">Expansion Rate: +{latestObservation.expansion_rate.toFixed(1)}%/s</div>
-                        <div className="text-slate-300">Est. Velocity: {latestObservation.estimated_velocity.toFixed(2)} m/s</div>
-                        <div className="text-slate-400 text-[10px]">Blocked Roads: {latestObservation.blocked_roads.join(', ') || 'None'}</div>
-                      </div>
-
-                      {latestObservation.image_data_url && (
-                        <div className="rounded-xl overflow-hidden border border-slate-800 bg-black">
-                          <div className="text-[10px] font-bold p-2 bg-slate-900 text-slate-400">Captured Base64 Frame Payload</div>
-                          <img src={latestObservation.image_data_url} alt="Frame Payload" className="w-full h-48 object-cover" />
-                        </div>
-                      )}
-                    </>
+                    <div className="p-3 rounded-xl bg-slate-900/80 border border-slate-800 space-y-2 text-[11px]">
+                      <div className="text-cyan-400 font-bold">LATEST OBSERVATION</div>
+                      <div>Water Level: {latestObservation.estimated_water_level}m</div>
+                      <div>Flood Speed: {latestObservation.estimated_velocity} m/s</div>
+                      <div>Flooded Area: {latestObservation.flood_area_percent}%</div>
+                    </div>
                   ) : (
-                    <p className="text-slate-500 text-[11px]">Awaiting aerial recon frame capture...</p>
+                    <p className="text-slate-500 text-[11px]">No CV observations recorded yet.</p>
                   )}
                 </div>
               )}
@@ -196,6 +193,11 @@ export default function TechnicalDetailsDrawer({ isOpen, onClose, initialTab = '
                     </div>
                   ))}
                 </div>
+              )}
+
+              {/* TAB 5: PRIVACY AUDIT TRAIL */}
+              {tab === 'privacy' && (
+                <AuditLogTab />
               )}
             </div>
           </motion.div>

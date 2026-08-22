@@ -8,6 +8,8 @@ import {
 import { useAgentStore } from '@/stores/agentStore'
 import { useSimulationStore } from '@/stores/simulationStore'
 import { useResourceStore } from '@/stores/resourceStore'
+import { DemoPrivacyControls } from '@/components/privacy/DemoPrivacyControls'
+import { PrivacyGate } from '@/components/privacy/PrivacyGate'
 
 export interface BaselineMetrics {
   runType: string
@@ -291,6 +293,8 @@ export const AegisMissionReportModal: React.FC<AegisMissionReportModalProps> = (
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <DemoPrivacyControls isMissionReportOpen={true} />
+
             <div style={{ textAlign: 'right', fontFamily: 'monospace' }}>
               <span style={{ fontSize: '11px', color: '#64748B', fontWeight: 600, display: 'block' }}>SCENARIO</span>
               <span style={{ fontSize: '14px', fontWeight: 800, color: '#0F172A' }}>#{currentSeed}</span>
@@ -656,16 +660,39 @@ export const AegisMissionReportModal: React.FC<AegisMissionReportModalProps> = (
                 <span style={{ fontSize: '12px', fontWeight: 800, color: '#0F172A', display: 'block', marginTop: '4px' }}>RESCUED</span>
               </div>
             </div>
+          </div>
 
-            {/* PROTECTION BREAKDOWN BAR */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', paddingTop: '8px', borderTop: '1px solid #F1F5F9' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', fontFamily: 'monospace', fontWeight: 800, color: '#334155' }}>
-                <span>PROTECTION BREAKDOWN</span>
-                <span>{evacuatedPct}% EVACUATED | {rescuedPct}% RESCUED</span>
+          {/* ───────────────────────────────────────────────────────────── */}
+          {/* SECTION 3.5: RESTRICTED CITIZEN BEACON TELEMETRY */}
+          {/* ───────────────────────────────────────────────────────────── */}
+          <div style={{ backgroundColor: '#FFFFFF', padding: '24px', borderRadius: '24px', border: '1px solid #E2E8F0', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div>
+                <h3 style={{ fontSize: '13px', fontFamily: 'monospace', fontWeight: 800, color: '#7C3AED', textTransform: 'uppercase', letterSpacing: '1px', display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
+                  <Users size={16} style={{ color: '#7C3AED' }} /> RESTRICTED CITIZEN BEACON TELEMETRY
+                </h3>
+                <p style={{ fontSize: '12px', color: '#64748B', margin: '4px 0 0 0' }}>
+                  Individual beacon records & emergency contact logs. Strict access control enforced by AEGIS Policy Engine.
+                </p>
               </div>
-              <div style={{ width: '100%', backgroundColor: '#F1F5F9', borderRadius: '9999px', height: '16px', overflow: 'hidden', display: 'flex', border: '1px solid #E2E8F0' }}>
-                <div style={{ backgroundColor: '#6366F1', height: '100%', width: `${evacuatedPct}%` }} />
-                <div style={{ backgroundColor: '#3B82F6', height: '100%', width: `${rescuedPct}%` }} />
+              <span style={{ fontSize: '10px', fontFamily: 'monospace', fontWeight: 800, color: '#7C3AED', backgroundColor: 'rgba(124,58,237,0.1)', padding: '4px 10px', borderRadius: '9999px', border: '1px solid rgba(124,58,237,0.2)' }}>
+                CLASSIFICATION: RESTRICTED
+              </span>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '12px', fontFamily: 'monospace', fontSize: '11px' }}>
+              <div style={{ backgroundColor: '#F8FAFC', padding: '14px', borderRadius: '14px', border: '1px solid #E2E8F0', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                <span style={{ fontWeight: 800, color: '#0F172A' }}>BEACON LOG #BCN-9482 (SECTOR 04)</span>
+                <div>Address: <PrivacyGate classification="RESTRICTED" field="Citizen Street Address (BCN-9482)" fallbackValue="142 Riverfront Way, Sector 04" isMissionReportOpen={true}>142 Riverfront Way, Sector 04</PrivacyGate></div>
+                <div>Citizen ID: <PrivacyGate classification="RESTRICTED" field="Citizen ID (BCN-9482)" fallbackValue="US-CIT-849201" isMissionReportOpen={true}>US-CIT-849201</PrivacyGate></div>
+                <div>Status: Evacuated via Route R21</div>
+              </div>
+
+              <div style={{ backgroundColor: '#F8FAFC', padding: '14px', borderRadius: '14px', border: '1px solid #E2E8F0', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                <span style={{ fontWeight: 800, color: '#0F172A' }}>BEACON LOG #BCN-9485 (SECTOR 07)</span>
+                <div>Address: <PrivacyGate classification="RESTRICTED" field="Citizen Street Address (BCN-9485)" fallbackValue="88 North Bridge Rd, Sector 07" isMissionReportOpen={true}>88 North Bridge Rd, Sector 07</PrivacyGate></div>
+                <div>Citizen ID: <PrivacyGate classification="RESTRICTED" field="Citizen ID (BCN-9485)" fallbackValue="US-CIT-774912" isMissionReportOpen={true}>US-CIT-774912</PrivacyGate></div>
+                <div>Status: Rescued by Boat 02</div>
               </div>
             </div>
           </div>

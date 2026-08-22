@@ -1,6 +1,7 @@
 'use client'
 import { useSimulationStore } from '@/stores/simulationStore'
 import { Shield, Terminal } from 'lucide-react'
+import { DemoPrivacyControls } from '@/components/privacy/DemoPrivacyControls'
 
 interface HeaderProps {
   connectionStatus: string
@@ -28,12 +29,16 @@ export default function Header({ connectionStatus, onOpenTechnicalDrawer }: Head
         </div>
       </div>
 
-      {/* Center: Live Disaster Simulation Indicator */}
-      <div className="flex items-center gap-2 bg-[#111827] border border-slate-800 px-5 py-2 rounded-2xl shadow-inner">
-        <span className={`w-2.5 h-2.5 rounded-full ${isRunning ? 'bg-red-500 animate-ping' : 'bg-emerald-400'}`} />
-        <span className="text-xs font-sans font-bold text-white uppercase tracking-wider">
-          {isRunning ? 'LIVE DISASTER SIMULATION' : 'SYSTEM STANDBY'}
-        </span>
+      {/* Center: Demo Privacy Controls & Live Indicator */}
+      <div className="flex items-center gap-4">
+        <DemoPrivacyControls onOpenAuditLog={onOpenTechnicalDrawer} />
+
+        <div className="hidden xl:flex items-center gap-2 bg-[#111827] border border-slate-800 px-4 py-2 rounded-2xl shadow-inner">
+          <span className={`w-2.5 h-2.5 rounded-full ${isRunning ? 'bg-red-500 animate-ping' : 'bg-emerald-400'}`} />
+          <span className="text-xs font-sans font-bold text-white uppercase tracking-wider">
+            {isRunning ? 'LIVE DISASTER SIMULATION' : 'SYSTEM STANDBY'}
+          </span>
+        </div>
       </div>
 
       {/* Right: Operational Status & Technical Drawer Button */}
