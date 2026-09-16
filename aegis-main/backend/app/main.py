@@ -15,6 +15,7 @@ from .knowledge.sops import get_all_sops, get_sop
 from .recon.routes import router as recon_router
 from .recon.service import recon_service
 from .recon.frame_store import frame_store
+from .intelligence.routes import router as intelligence_router
 
 app = FastAPI(
     title="AEGIS FLOOD — Closed-Loop Autonomous Command Center",
@@ -30,8 +31,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Register Recon endpoints
+# Register Recon & Intelligence endpoints
 app.include_router(recon_router)
+app.include_router(intelligence_router)
 
 # Global instances
 sim_engine = create_fresh_simulation()

@@ -1,0 +1,109 @@
+{
+  "device_id": "PHONE-01",
+  "model_dimensions": {
+    "width_cm": 80,
+    "height_cm": 80,
+    "area_cm2": 6400,
+    "area_m2": 0.64
+  },
+  "target_size": {
+    "width": 800,
+    "height": 800
+  },
+  "calibration_corners": {
+    "top_left": [100, 80],
+    "top_right": [1180, 80],
+    "bottom_right": [1180, 640],
+    "bottom_left": [100, 640]
+  },
+  "water_detection_thresholds": {
+    "hsv_min": [85, 40, 40],
+    "hsv_max": [135, 255, 255],
+    "color_distance_threshold": 45,
+    "min_contour_area": 50
+  },
+  "river": {
+    "id": "RIVER-01",
+    "name": "Main City River Channel",
+    "sectors": ["S2", "S6", "S7", "S11", "S15"],
+    "polygon": [
+      [240, 0], [360, 0], [380, 200], [580, 240], [560, 400], [580, 600], [540, 800], [440, 800]
+    ]
+  },
+  "bridge": {
+    "id": "BRIDGE-01",
+    "name": "Central Crossing Bridge",
+    "sector": "S7",
+    "polygon": [[420, 280], [580, 280], [580, 320], [420, 320]]
+  },
+  "hospitals": [
+    {
+      "id": "HOSPITAL-01",
+      "name": "Central General Hospital",
+      "sector": "S6",
+      "polygon": [[220, 220], [280, 220], [280, 280], [220, 280]]
+    }
+  ],
+  "shelters": [
+    {
+      "id": "SHELTER-01",
+      "name": "North Safehouse",
+      "sector": "S1",
+      "capacity": 200,
+      "polygon": [[130, 130], [180, 130], [180, 180], [130, 180]]
+    },
+    {
+      "id": "SHELTER-02",
+      "name": "South Safehouse",
+      "sector": "S16",
+      "capacity": 350,
+      "polygon": [[650, 650], [750, 650], [750, 750], [650, 750]]
+    }
+  ],
+  "emergency_hq": {
+    "id": "EOC-HQ",
+    "name": "Emergency Command HQ",
+    "sector": "S4",
+    "polygon": [[630, 30], [730, 30], [730, 80], [630, 80]]
+  },
+  "buildings": [
+    {"id": "B01", "name": "Structure B01 (S1)", "sector": "S1", "polygon": [[30, 30], [80, 30], [80, 80], [30, 80]]},
+    {"id": "B02", "name": "Structure B02 (S2)", "sector": "S2", "polygon": [[230, 30], [280, 30], [280, 80], [230, 80]]},
+    {"id": "B03", "name": "Structure B03 (S3)", "sector": "S3", "polygon": [[430, 30], [480, 30], [480, 80], [430, 80]]},
+    {"id": "B04", "name": "Structure B04 (S4)", "sector": "S4", "polygon": [[630, 110], [680, 110], [680, 160], [630, 160]]},
+    {"id": "B05", "name": "Structure B05 (S5)", "sector": "S5", "polygon": [[30, 230], [80, 230], [80, 280], [30, 280]]},
+    {"id": "B06", "name": "Structure B06 (S6)", "sector": "S6", "polygon": [[320, 220], [370, 220], [370, 270], [320, 270]]},
+    {"id": "B07", "name": "Structure B07 (S7)", "sector": "S7", "polygon": [[430, 230], [480, 230], [480, 280], [430, 280]]},
+    {"id": "B08", "name": "Structure B08 (S8)", "sector": "S8", "polygon": [[630, 230], [680, 230], [680, 280], [630, 280]]},
+    {"id": "B09", "name": "Structure B09 (S9)", "sector": "S9", "polygon": [[30, 430], [80, 430], [80, 480], [30, 480]]},
+    {"id": "B10", "name": "Structure B10 (S10)", "sector": "S10", "polygon": [[230, 430], [280, 430], [280, 480], [230, 480]]},
+    {"id": "B11", "name": "Structure B11 (S11)", "sector": "S11", "polygon": [[430, 430], [480, 430], [480, 480], [430, 480]]},
+    {"id": "B12", "name": "Structure B12 (S12)", "sector": "S12", "polygon": [[630, 430], [680, 430], [680, 480], [630, 480]]},
+    {"id": "B13", "name": "Structure B13 (S13)", "sector": "S13", "polygon": [[30, 630], [80, 630], [80, 680], [30, 680]]},
+    {"id": "B14", "name": "Structure B14 (S14)", "sector": "S14", "polygon": [[230, 630], [280, 630], [280, 680], [230, 680]]},
+    {"id": "B15", "name": "Structure B15 (S15)", "sector": "S15", "polygon": [[430, 630], [480, 630], [480, 680], [430, 680]]},
+    {"id": "B16", "name": "Structure B16 (S16)", "sector": "S16", "polygon": [[630, 700], [680, 700], [680, 750], [630, 750]]}
+  ],
+  "roads": [
+    {"id": "R01", "name": "Arterial Road R01", "sector": "S1", "polygon": [[0, 90], [200, 90], [200, 110], [0, 110]]},
+    {"id": "R02", "name": "Arterial Road R02", "sector": "S2", "polygon": [[200, 90], [400, 90], [400, 110], [200, 110]]},
+    {"id": "R03", "name": "Arterial Road R03", "sector": "S3", "polygon": [[400, 90], [600, 90], [600, 110], [400, 110]]},
+    {"id": "R04", "name": "Arterial Road R04", "sector": "S4", "polygon": [[600, 90], [800, 90], [800, 110], [600, 110]]},
+    {"id": "R05", "name": "Arterial Road R05", "sector": "S5", "polygon": [[0, 290], [200, 290], [200, 310], [0, 310]]},
+    {"id": "R06", "name": "Arterial Road R06", "sector": "S6", "polygon": [[200, 290], [400, 290], [400, 310], [200, 310]]},
+    {"id": "R07", "name": "Arterial Road R07", "sector": "S7", "polygon": [[400, 290], [600, 290], [600, 310], [400, 310]]},
+    {"id": "R08", "name": "Arterial Road R08", "sector": "S8", "polygon": [[600, 290], [800, 290], [800, 310], [600, 310]]},
+    {"id": "R09", "name": "Arterial Road R09", "sector": "S9", "polygon": [[0, 490], [200, 490], [200, 510], [0, 510]]},
+    {"id": "R10", "name": "Arterial Road R10", "sector": "S10", "polygon": [[200, 490], [400, 490], [400, 510], [200, 510]]},
+    {"id": "R11", "name": "Arterial Road R11", "sector": "S11", "polygon": [[400, 490], [600, 490], [600, 510], [400, 510]]},
+    {"id": "R12", "name": "Arterial Road R12", "sector": "S12", "polygon": [[600, 490], [800, 490], [800, 510], [600, 510]]},
+    {"id": "R13", "name": "Arterial Road R13", "sector": "S13", "polygon": [[0, 690], [200, 690], [200, 710], [0, 710]]},
+    {"id": "R14", "name": "Arterial Road R14", "sector": "S14", "polygon": [[200, 690], [400, 690], [400, 710], [200, 710]]},
+    {"id": "R15", "name": "Arterial Road R15", "sector": "S15", "polygon": [[400, 690], [600, 690], [600, 710], [400, 710]]},
+    {"id": "R16", "name": "Arterial Road R16", "sector": "S16", "polygon": [[600, 690], [800, 690], [800, 710], [600, 710]]},
+    {"id": "R17", "name": "Vertical Main Road R17", "sector": "S2", "polygon": [[290, 0], [310, 0], [310, 200], [290, 200]]},
+    {"id": "R18", "name": "Vertical Main Road R18", "sector": "S6", "polygon": [[290, 200], [310, 200], [310, 400], [290, 400]]},
+    {"id": "R19", "name": "Vertical Main Road R19", "sector": "S10", "polygon": [[290, 400], [310, 400], [310, 600], [290, 600]]},
+    {"id": "R20", "name": "Vertical Main Road R20", "sector": "S14", "polygon": [[290, 600], [310, 600], [310, 800], [290, 800]]}
+  ]
+}

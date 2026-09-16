@@ -1,9 +1,11 @@
 'use client'
 
 import React from 'react'
+import { useRouter } from 'next/navigation'
 import { FileText } from 'lucide-react'
 import { Role, Intent } from '@/lib/privacy/classification'
 import { usePrivacyStore } from '@/stores/privacyStore'
+import { useProfileStore, Profile, getDashboardPathForRole } from '@/stores/useProfileStore'
 import { deriveCurrentContext } from '@/lib/privacy/contextHelper'
 
 interface DemoPrivacyControlsProps {
@@ -15,8 +17,26 @@ export const DemoPrivacyControls: React.FC<DemoPrivacyControlsProps> = ({
   onOpenAuditLog,
   isMissionReportOpen = false
 }) => {
+  const router = useRouter()
   const { currentRole, currentIntent, setRole, setIntent, auditLogs } = usePrivacyStore()
+  const setProfile = useProfileStore((state) => state.setProfile)
   const currentContext = deriveCurrentContext(isMissionReportOpen)
+
+  const handleRoleChange = (newRole: Role) => {
+    setRole(newRole)
+
+    let profile: Profile
+    if (newRole === 'SYSTEM_ADMIN') {
+      profile = { role: 'SYSTEM_ADMIN', name: 'Maria Chen' }
+    } else if (newRole === 'SECTOR_COMMANDER') {
+      profile = { role: 'SECTOR_COMMANDER', name: 'Commander — Sector 04', sector: '04' }
+    } else {
+      profile = { role: 'FIELD_RESPONDER', name: 'Unit 12', sector: '04', reportsTo: 'Sector 04 Commander' }
+    }
+
+    setProfile(profile)
+    router.push(getDashboardPathForRole(newRole))
+  }
 
   return (
     <div className="w-full flex justify-center px-4 mt-3 mb-1">
@@ -32,7 +52,7 @@ export const DemoPrivacyControls: React.FC<DemoPrivacyControlsProps> = ({
 
         <select
           value={currentRole}
-          onChange={(e) => setRole(e.target.value as Role)}
+          onChange={(e) => handleRoleChange(e.target.value as Role)}
           className="appearance-none px-2.5 py-1 rounded-full bg-white/70 border border-slate-200
             text-[10px] font-mono font-semibold text-[#111111] cursor-pointer
             focus:outline-none focus:ring-1 focus:ring-[#2563EB]/40"

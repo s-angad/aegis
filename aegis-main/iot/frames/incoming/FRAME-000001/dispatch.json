@@ -1,0 +1,43 @@
+{
+  "agent": "ROUTER_DISPATCH",
+  "agent_version": "1.0.0",
+  "frame_id": "FRAME-000001",
+  "incident_id": "INC-001",
+  "status": "SUCCESS",
+  "confidence": 0.88,
+  "execution_time_ms": 0.0,
+  "result": {
+    "dispatches": [],
+    "routes": [],
+    "blocked_roads": [],
+    "alternative_routes": [
+      {
+        "unit_id": "AUX_UNIT_1",
+        "destination_sector": "S1",
+        "bypass_path": [
+          "S1"
+        ],
+        "avoids_all_blocked_roads": true
+      }
+    ],
+    "estimated_times": {
+      "AUX_UNIT_1": 180.0
+    },
+    "confidence": 0.88,
+    "agent": "router_dispatch",
+    "status": "complete",
+    "source": "ROUTING_AND_DISPATCH",
+    "source_frame": "FRAME-000001",
+    "timestamp": "",
+    "dispatch_status": "STANDBY",
+    "network_status": "CLEAR"
+  },
+  "warnings": [],
+  "errors": [],
+  "timestamp": "2026-09-16 04:12:54",
+  "metadata": {
+    "attempt": 1,
+    "timeout_seconds": 5.0,
+    "idempotency_key": "INC-001:FRAME-000001:ROUTER_DISPATCH"
+  }
+}

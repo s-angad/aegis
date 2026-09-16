@@ -1,0 +1,36 @@
+{
+  "frame_id": "FRAME-000004",
+  "device_id": "PHONE-01",
+  "timestamp": "9:43:06 AM",
+  "perception": {
+    "water_detected": true,
+    "flood_detected": true,
+    "river_water_present": true,
+    "flood_coverage_percent": 3.31,
+    "flood_pixels": 21195,
+    "confidence": 96.0
+  },
+  "flood_coverage_percent": 3.31,
+  "affected_sectors": [
+    "S1",
+    "S2"
+  ],
+  "affected_buildings": [
+    "SHELTER-01",
+    "B001",
+    "B002"
+  ],
+  "blocked_roads": [
+    "ROAD-H-S1",
+    "ROAD-V-S1"
+  ],
+  "bridge_status": "OPEN",
+  "camera_coverage": {
+    "visible_percent": 99,
+    "visible_width_cm": 79.2,
+    "visible_height_cm": 79.2,
+    "visible_area_cm2": 6272.6,
+    "sectors_visible": "15 / 16",
+    "status": "PARTIAL"
+  }
+}

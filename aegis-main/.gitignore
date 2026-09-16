@@ -1,0 +1,3 @@
+# IoT Local Development SSL Certificates
+iot/gateway/certs/*.pem
+iot/gateway/certs/*.key

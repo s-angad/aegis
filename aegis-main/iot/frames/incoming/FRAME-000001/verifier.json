@@ -1,0 +1,39 @@
+{
+  "agent": "VERIFIER",
+  "agent_version": "1.0.0",
+  "frame_id": "FRAME-000001",
+  "incident_id": "INC-001",
+  "status": "SUCCESS",
+  "confidence": 0.96,
+  "execution_time_ms": 0.46,
+  "result": {
+    "verified": true,
+    "confidence": 0.96,
+    "newly_affected_sectors": [],
+    "anomalies": [],
+    "inconsistencies": [],
+    "evidence": [
+      "Frame FRAME-000001 verified against Frame N-1 temporal buffer.",
+      "Coverage Delta: +0.0%.",
+      "Newly affected sectors: None."
+    ],
+    "verification_summary": "Verification PASSED: 0 anomalies, 0 inconsistencies detected.",
+    "agent": "verifier",
+    "status": "complete",
+    "source": "RECON_VERIFICATION",
+    "source_frame": "FRAME-000001",
+    "timestamp": "",
+    "severity": "NORMAL",
+    "flood_change_percent": 0.0,
+    "observation_consistency": 0.96,
+    "anomaly_detected": false
+  },
+  "warnings": [],
+  "errors": [],
+  "timestamp": "2026-09-16 04:12:52",
+  "metadata": {
+    "attempt": 1,
+    "timeout_seconds": 5.0,
+    "idempotency_key": "INC-001:FRAME-000001:VERIFIER"
+  }
+}

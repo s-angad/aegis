@@ -1,0 +1,50 @@
+{
+  "agent": "RECON",
+  "agent_version": "1.0.0",
+  "frame_id": "FRAME-000004",
+  "incident_id": "INC-001",
+  "status": "SUCCESS",
+  "confidence": 0.96,
+  "execution_time_ms": 0.0,
+  "result": {
+    "situation_summary": "Aerial Recon: 2/16 sectors affected, overall flood coverage 3.3%. Critical sectors: None.",
+    "affected_sectors": [
+      "S1",
+      "S2"
+    ],
+    "critical_sectors": [],
+    "affected_infrastructure": [
+      "ROAD:ROAD-H-S1",
+      "ROAD:ROAD-V-S1"
+    ],
+    "flood_coverage": 3.31,
+    "confidence": 0.96,
+    "observations": [
+      "Frame FRAME-000004 evaluated with Phase 3 CV.",
+      "Total flood coverage measured at 3.3%.",
+      "Detected 2 impacted infrastructure items."
+    ],
+    "warnings": [],
+    "agent": "recon",
+    "status": "complete",
+    "source": "PHYSICAL_OBSERVATION",
+    "source_frame": "FRAME-000004",
+    "timestamp": "9:43:06 AM",
+    "flood_detected": true,
+    "flood_coverage_percent": 3.31,
+    "blocked_roads": [
+      "ROAD-H-S1",
+      "ROAD-V-S1"
+    ],
+    "bridge_status": "OPEN",
+    "affected_buildings": 12
+  },
+  "warnings": [],
+  "errors": [],
+  "timestamp": "2026-09-16 04:13:06",
+  "metadata": {
+    "attempt": 1,
+    "timeout_seconds": 5.0,
+    "idempotency_key": "INC-001:FRAME-000004:RECON"
+  }
+}

@@ -73,3 +73,22 @@ async def update_recon_config(config: ReconConfig):
     frame_store.config = config
     await manager.broadcast("recon_config", config.model_dump(mode="json"))
     return {"status": "updated", "config": config.model_dump(mode="json")}
+
+
+@router.get("/phase3/latest")
+async def get_phase3_latest():
+    """Retrieve the canonical Phase 3 Observation object."""
+    from .phase3_adapter import get_phase3_latest_observation
+    obs = get_phase3_latest_observation()
+    if not obs:
+        return {"status": "no_observations", "observation": None}
+    return {"status": "ok", "observation": obs}
+
+
+@router.get("/phase3/history")
+async def get_phase3_history_endpoint(limit: int = 30):
+    """Retrieve historical Phase 3 canonical observations."""
+    from .phase3_adapter import get_phase3_history
+    history = get_phase3_history(limit)
+    return {"status": "ok", "count": len(history), "history": history}
+

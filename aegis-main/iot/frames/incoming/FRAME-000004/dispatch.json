@@ -1,0 +1,131 @@
+{
+  "agent": "ROUTER_DISPATCH",
+  "agent_version": "1.0.0",
+  "frame_id": "FRAME-000004",
+  "incident_id": "INC-001",
+  "status": "SUCCESS",
+  "confidence": 0.88,
+  "execution_time_ms": 0.54,
+  "result": {
+    "dispatches": [
+      {
+        "resource": "AUX_UNIT_1",
+        "destination": "S1",
+        "priority": "HIGH"
+      },
+      {
+        "resource": "AUX_UNIT_2",
+        "destination": "S1",
+        "priority": "HIGH"
+      },
+      {
+        "resource": "AUX_UNIT_3",
+        "destination": "S1",
+        "priority": "HIGH"
+      },
+      {
+        "resource": "AUX_UNIT_4",
+        "destination": "S1",
+        "priority": "HIGH"
+      }
+    ],
+    "routes": [
+      {
+        "resource": "AUX_UNIT_1",
+        "from": "BASE-HQ",
+        "to": "S1",
+        "route": [
+          "R01",
+          "S1"
+        ]
+      },
+      {
+        "resource": "AUX_UNIT_2",
+        "from": "BASE-HQ",
+        "to": "S1",
+        "route": [
+          "R01",
+          "S1"
+        ]
+      },
+      {
+        "resource": "AUX_UNIT_3",
+        "from": "BASE-HQ",
+        "to": "S1",
+        "route": [
+          "R01",
+          "S1"
+        ]
+      },
+      {
+        "resource": "AUX_UNIT_4",
+        "from": "BASE-HQ",
+        "to": "S1",
+        "route": [
+          "R01",
+          "S1"
+        ]
+      }
+    ],
+    "blocked_roads": [
+      "ROAD-H-S1",
+      "ROAD-V-S1"
+    ],
+    "alternative_routes": [
+      {
+        "unit_id": "AUX_UNIT_1",
+        "destination_sector": "S1",
+        "bypass_path": [
+          "S1"
+        ],
+        "avoids_all_blocked_roads": true
+      },
+      {
+        "unit_id": "AUX_UNIT_2",
+        "destination_sector": "S1",
+        "bypass_path": [
+          "S1"
+        ],
+        "avoids_all_blocked_roads": true
+      },
+      {
+        "unit_id": "AUX_UNIT_3",
+        "destination_sector": "S1",
+        "bypass_path": [
+          "S1"
+        ],
+        "avoids_all_blocked_roads": true
+      },
+      {
+        "unit_id": "AUX_UNIT_4",
+        "destination_sector": "S1",
+        "bypass_path": [
+          "S1"
+        ],
+        "avoids_all_blocked_roads": true
+      }
+    ],
+    "estimated_times": {
+      "AUX_UNIT_1": 180.0,
+      "AUX_UNIT_2": 225.0,
+      "AUX_UNIT_3": 270.0,
+      "AUX_UNIT_4": 315.0
+    },
+    "confidence": 0.88,
+    "agent": "router_dispatch",
+    "status": "complete",
+    "source": "ROUTING_AND_DISPATCH",
+    "source_frame": "FRAME-000004",
+    "timestamp": "9:43:06 AM",
+    "dispatch_status": "ACTIVE",
+    "network_status": "DISPATCHED"
+  },
+  "warnings": [],
+  "errors": [],
+  "timestamp": "2026-09-16 04:13:09",
+  "metadata": {
+    "attempt": 1,
+    "timeout_seconds": 5.0,
+    "idempotency_key": "INC-001:FRAME-000004:ROUTER_DISPATCH"
+  }
+}

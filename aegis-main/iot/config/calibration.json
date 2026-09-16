@@ -1,0 +1,21 @@
+{
+  "top_left": [
+    100,
+    80
+  ],
+  "top_right": [
+    1180,
+    80
+  ],
+  "bottom_right": [
+    1180,
+    640
+  ],
+  "bottom_left": [
+    100,
+    640
+  ],
+  "target_width": 800,
+  "target_height": 800,
+  "is_calibrated": true
+}

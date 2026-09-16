@@ -1,0 +1,60 @@
+{
+  "agent": "ORCHESTRATOR",
+  "agent_version": "1.0.0",
+  "frame_id": "FRAME-000004",
+  "incident_id": "INC-001",
+  "status": "SUCCESS",
+  "confidence": 0.9,
+  "execution_time_ms": 0.68,
+  "result": {
+    "priority": "HIGH",
+    "situation": "Flood hazard status: HIGH (affected: S1, S2)",
+    "objectives": [
+      "Contain flood expansion in sectors S1, S2.",
+      "Maintain emergency access corridors across physical testbed grid.",
+      "Prepare rescue assets for predicted high-risk sectors."
+    ],
+    "actions": [
+      {
+        "action": "EVACUATE",
+        "sector": "S1"
+      },
+      {
+        "action": "ALLOCATE_BOAT",
+        "resource": "BOAT-01",
+        "sector": "S1"
+      },
+      {
+        "action": "EVACUATE",
+        "sector": "S2"
+      },
+      {
+        "action": "ALLOCATE_BOAT",
+        "resource": "BOAT-01",
+        "sector": "S2"
+      }
+    ],
+    "resources_requested": [],
+    "sectors": [
+      "S1",
+      "S2"
+    ],
+    "requires_approval": true,
+    "confidence": 0.9,
+    "rationale": "Formulated recommended action plan for incident INC-001 (Frame FRAME-000004). Prioritizes active containment across 2 affected sectors and 3 predicted surge sectors.",
+    "agent": "orchestrator",
+    "status": "complete",
+    "source": "STRATEGIC_ORCHESTRATION",
+    "source_frame": "FRAME-000004",
+    "timestamp": "9:43:06 AM",
+    "reasoning_summary": "Active flood detected in sectors S1, S2 with predicted spread toward S1, S2, S6."
+  },
+  "warnings": [],
+  "errors": [],
+  "timestamp": "2026-09-16 04:13:08",
+  "metadata": {
+    "attempt": 1,
+    "timeout_seconds": 5.0,
+    "idempotency_key": "INC-001:FRAME-000004:ORCHESTRATOR"
+  }
+}

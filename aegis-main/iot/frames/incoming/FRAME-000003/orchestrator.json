@@ -1,0 +1,43 @@
+{
+  "agent": "ORCHESTRATOR",
+  "agent_version": "1.0.0",
+  "frame_id": "FRAME-000003",
+  "incident_id": "INC-001",
+  "status": "SUCCESS",
+  "confidence": 0.9,
+  "execution_time_ms": 0.52,
+  "result": {
+    "priority": "NORMAL",
+    "situation": "Flood hazard status: NORMAL (affected: none)",
+    "objectives": [
+      "Contain flood expansion in sectors none (surveillance active).",
+      "Maintain emergency access corridors across physical testbed grid.",
+      "Prepare rescue assets for predicted high-risk sectors."
+    ],
+    "actions": [
+      {
+        "action": "MONITOR",
+        "reason": "No active flooding detected."
+      }
+    ],
+    "resources_requested": [],
+    "sectors": [],
+    "requires_approval": true,
+    "confidence": 0.9,
+    "rationale": "Formulated recommended action plan for incident INC-001 (Frame FRAME-000003). Prioritizes active containment across 0 affected sectors and 0 predicted surge sectors.",
+    "agent": "orchestrator",
+    "status": "complete",
+    "source": "STRATEGIC_ORCHESTRATION",
+    "source_frame": "FRAME-000003",
+    "timestamp": "",
+    "reasoning_summary": "No active flooding detected across physical testbed model. Continuing routine surveillance."
+  },
+  "warnings": [],
+  "errors": [],
+  "timestamp": "2026-09-16 04:13:03",
+  "metadata": {
+    "attempt": 1,
+    "timeout_seconds": 5.0,
+    "idempotency_key": "INC-001:FRAME-000003:ORCHESTRATOR"
+  }
+}

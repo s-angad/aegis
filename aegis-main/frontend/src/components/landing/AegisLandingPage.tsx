@@ -24,13 +24,6 @@ export default function AegisLandingPage({ onInitialize }: AegisLandingPageProps
   const [isInitializing, setIsInitializing] = useState(false)
   const [oodaActiveState, setOodaActiveState] = useState(2) // 0: OBSERVE, 1: VERIFY, 2: PREDICT, 3: DECIDE, 4: ACT
 
-  // Redirect to /select-profile if currentProfile is null
-  useEffect(() => {
-    if (currentProfile === null) {
-      router.push('/select-profile')
-    }
-  }, [currentProfile, router])
-
   // Sequential OODA illumination timeline loop
   useEffect(() => {
     const timer = setInterval(() => {

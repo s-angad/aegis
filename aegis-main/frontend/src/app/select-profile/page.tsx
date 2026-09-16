@@ -3,11 +3,13 @@
 import React from 'react'
 import { useRouter } from 'next/navigation'
 import { Crown, Shield, LifeBuoy, ChevronRight } from 'lucide-react'
-import { useProfileStore, Profile, Role } from '@/stores/useProfileStore'
+import { useProfileStore, Profile, Role, getDashboardPathForRole } from '@/stores/useProfileStore'
+import { usePrivacyStore } from '@/stores/privacyStore'
 
 export default function SelectProfilePage() {
   const router = useRouter()
   const setProfile = useProfileStore((state) => state.setProfile)
+  const setRole = usePrivacyStore((state) => state.setRole)
 
   const handleSelectProfile = (role: Role) => {
     let profile: Profile
@@ -20,9 +22,11 @@ export default function SelectProfilePage() {
     }
 
     setProfile(profile)
+    setRole(role)
 
-    // TODO: redirect to role-specific dashboard once built in a later step
-    router.push('/')
+    // Redirect directly to role-specific dashboard!
+    const targetDashboard = getDashboardPathForRole(role)
+    router.push(targetDashboard)
   }
 
   return (
@@ -53,7 +57,7 @@ export default function SelectProfilePage() {
           </p>
         </div>
 
-        {/* REPLACED CARD MARKUP */}
+        {/* PROFILE CARDS LIST */}
         <div className="w-full max-w-3xl mx-auto flex flex-col gap-5 text-left">
 
           {/* ADMIN CARD */}
@@ -67,7 +71,7 @@ export default function SelectProfilePage() {
               transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]
               hover:-translate-y-1 hover:shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_20px_50px_rgba(245,158,11,0.18)]
               hover:border-l-amber-400
-              motion-reduce:hover:translate-y-0 text-left"
+              motion-reduce:hover:translate-y-0 text-left cursor-pointer"
           >
             <div className="flex-shrink-0 w-14 h-14 rounded-2xl bg-amber-500/12 border border-amber-500/25
               flex items-center justify-center transition-colors group-hover:bg-amber-500/20">
@@ -95,7 +99,7 @@ export default function SelectProfilePage() {
               transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]
               hover:-translate-y-1 hover:shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_20px_50px_rgba(37,99,235,0.18)]
               hover:border-l-[#4A85F2]
-              motion-reduce:hover:translate-y-0 text-left"
+              motion-reduce:hover:translate-y-0 text-left cursor-pointer"
           >
             <div className="flex-shrink-0 w-14 h-14 rounded-2xl bg-[#2563EB]/10 border border-[#2563EB]/25
               flex items-center justify-center transition-colors group-hover:bg-[#2563EB]/20">
@@ -127,7 +131,7 @@ export default function SelectProfilePage() {
               transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]
               hover:-translate-y-1 hover:shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_20px_50px_rgba(6,182,212,0.18)]
               hover:border-l-cyan-400
-              motion-reduce:hover:translate-y-0 text-left"
+              motion-reduce:hover:translate-y-0 text-left cursor-pointer"
           >
             <div className="flex-shrink-0 w-14 h-14 rounded-2xl bg-cyan-500/12 border border-cyan-500/25
               flex items-center justify-center transition-colors group-hover:bg-cyan-500/20">
