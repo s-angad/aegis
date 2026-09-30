@@ -1,7 +1,7 @@
 // AEGIS AI — Constants & Configuration
 
-export const WS_URL = process.env.NEXT_PUBLIC_WS_URL || 'ws://127.0.0.1:8000/ws'
-export const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000'
+export const WS_URL = process.env.NEXT_PUBLIC_WS_URL || 'wss://aegis-1-krhb.onrender.com/ws'
+export const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://aegis-1-krhb.onrender.com'
 export const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || ''
 
 export const CITY_CENTER: [number, number] = [77.2090, 28.6139]  // [lng, lat]
