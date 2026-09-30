@@ -9,50 +9,42 @@
   "result": {
     "horizon_seconds": 900.0,
     "predicted_sectors": [
-      "S1",
       "S2",
-      "S6"
+      "S3",
+      "S5",
+      "S6",
+      "S7",
+      "S9",
+      "S10",
+      "S11",
+      "S14",
+      "S15"
     ],
-    "predicted_flood_coverage": 4.8,
-    "risk_levels": {
-      "S1": "HIGH",
-      "S2": "HIGH",
-      "S3": "LOW",
-      "S4": "LOW",
-      "S5": "LOW",
-      "S6": "ELEVATED",
-      "S7": "LOW",
-      "S8": "LOW",
-      "S9": "LOW",
-      "S10": "LOW",
-      "S11": "LOW",
-      "S12": "LOW",
-      "S13": "LOW",
-      "S14": "LOW",
-      "S15": "LOW",
-      "S16": "LOW"
-    },
+    "predicted_flood_coverage": 74.0,
+    "risk_levels": {},
     "confidence": 0.85,
-    "model_version": "spatial-trend-extrapolation-v1",
-    "assumptions": [
-      "Baseline flood progression rate extrapolated from Frame N-1 to Frame N delta.",
-      "Topography assumes gravity flow towards central river channel (S2 -> S6 -> S7 -> S11)."
-    ],
+    "model_version": "SIMULATION-trend-v1",
+    "assumptions": [],
     "agent": "predictor",
     "status": "complete",
+    "prediction_status": "ESCALATING",
+    "summary": "Spatial forecast: ESCALATING (Risk: CRITICAL)",
     "source": "TREND_PREDICTION",
     "source_frame": "FRAME-000004",
-    "timestamp": "9:43:06 AM",
-    "current_risk": "MEDIUM",
+    "source_observation_id": "OBS-SIM-04-44f9a9",
+    "model": "SIMULATION",
+    "timestamp": "11:51:12 AM",
+    "current_risk": "CRITICAL",
+    "projected_risk": "CRITICAL",
     "prediction_horizon_seconds": 900,
-    "predicted_flood_expansion_percent": 0.0
+    "predicted_flood_expansion_percent": 21.0
   },
   "warnings": [],
   "errors": [],
-  "timestamp": "2026-09-16 04:13:07",
+  "timestamp": "2026-09-16 06:21:14",
   "metadata": {
     "attempt": 1,
-    "timeout_seconds": 5.0,
+    "timeout_seconds": 30.0,
     "idempotency_key": "INC-001:FRAME-000004:PREDICTOR"
   }
 }

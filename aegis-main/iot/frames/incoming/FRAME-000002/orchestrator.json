@@ -5,39 +5,61 @@
   "incident_id": "INC-001",
   "status": "SUCCESS",
   "confidence": 0.9,
-  "execution_time_ms": 0.0,
+  "execution_time_ms": 0.53,
   "result": {
-    "priority": "NORMAL",
-    "situation": "Flood hazard status: NORMAL (affected: none)",
+    "priority": "HIGH",
+    "situation": "Flood hazard status: HIGH (affected: S6, S7)",
     "objectives": [
-      "Contain flood expansion in sectors none (surveillance active).",
+      "Contain flood expansion in sectors S6, S7.",
       "Maintain emergency access corridors across physical testbed grid.",
       "Prepare rescue assets for predicted high-risk sectors."
     ],
     "actions": [
       {
-        "action": "MONITOR",
-        "reason": "No active flooding detected."
+        "action": "EVACUATE",
+        "sector": "S6"
+      },
+      {
+        "action": "ALLOCATE_BOAT",
+        "resource": "BOAT-01",
+        "sector": "S6"
+      },
+      {
+        "action": "EVACUATE",
+        "sector": "S7"
+      },
+      {
+        "action": "ALLOCATE_BOAT",
+        "resource": "BOAT-01",
+        "sector": "S7"
       }
     ],
-    "resources_requested": [],
-    "sectors": [],
+    "resources_requested": [
+      "BOAT-01"
+    ],
+    "sectors": [
+      "S6",
+      "S7"
+    ],
     "requires_approval": true,
     "confidence": 0.9,
-    "rationale": "Formulated recommended action plan for incident INC-001 (Frame FRAME-000002). Prioritizes active containment across 0 affected sectors and 0 predicted surge sectors.",
+    "rationale": "Active flood detected in sectors S6, S7 with predicted spread toward S6, S7.",
     "agent": "orchestrator",
     "status": "complete",
+    "decision": "Active flood detected in sectors S6, S7 with predicted spread toward S6, S7.",
+    "reasoning_summary": "Active flood detected in sectors S6, S7 with predicted spread toward S6, S7.",
     "source": "STRATEGIC_ORCHESTRATION",
     "source_frame": "FRAME-000002",
-    "timestamp": "",
-    "reasoning_summary": "No active flooding detected across physical testbed model. Continuing routine surveillance."
+    "source_observation_id": "OBS-SIM-02-47136e",
+    "model": "SIMULATION",
+    "timestamp": "11:51:05 AM"
   },
   "warnings": [],
   "errors": [],
-  "timestamp": "2026-09-16 04:12:58",
+  "timestamp": "2026-09-16 06:21:07",
   "metadata": {
     "attempt": 1,
-    "timeout_seconds": 5.0,
+    "timeout_seconds": 30.0,
     "idempotency_key": "INC-001:FRAME-000002:ORCHESTRATOR"
   }
 }

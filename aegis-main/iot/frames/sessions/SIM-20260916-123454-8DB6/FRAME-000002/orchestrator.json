@@ -1,0 +1,65 @@
+{
+  "agent": "ORCHESTRATOR",
+  "agent_version": "1.0.0",
+  "frame_id": "FRAME-000002",
+  "incident_id": "INC-001",
+  "status": "SUCCESS",
+  "confidence": 0.9,
+  "execution_time_ms": 1.01,
+  "result": {
+    "priority": "HIGH",
+    "situation": "Flood hazard status: HIGH (affected: S6, S7)",
+    "objectives": [
+      "Contain flood expansion in sectors S6, S7.",
+      "Maintain emergency access corridors across physical testbed grid.",
+      "Prepare rescue assets for predicted high-risk sectors."
+    ],
+    "actions": [
+      {
+        "action": "EVACUATE",
+        "sector": "S6"
+      },
+      {
+        "action": "ALLOCATE_BOAT",
+        "resource": "BOAT-01",
+        "sector": "S6"
+      },
+      {
+        "action": "EVACUATE",
+        "sector": "S7"
+      },
+      {
+        "action": "ALLOCATE_BOAT",
+        "resource": "BOAT-01",
+        "sector": "S7"
+      }
+    ],
+    "resources_requested": [
+      "BOAT-01"
+    ],
+    "sectors": [
+      "S6",
+      "S7"
+    ],
+    "requires_approval": true,
+    "confidence": 0.9,
+    "rationale": "Active flood detected in sectors S6, S7 with predicted spread toward S6, S7.",
+    "agent": "orchestrator",
+    "status": "complete",
+    "decision": "Active flood detected in sectors S6, S7 with predicted spread toward S6, S7.",
+    "reasoning_summary": "Active flood detected in sectors S6, S7 with predicted spread toward S6, S7.",
+    "source": "STRATEGIC_ORCHESTRATION",
+    "source_frame": "FRAME-000002",
+    "source_observation_id": "OBS-SIM-SIM-20260916-123454-8DB6-02",
+    "model": "SIMULATION",
+    "timestamp": "12:34:58 PM"
+  },
+  "warnings": [],
+  "errors": [],
+  "timestamp": "2026-09-16 07:05:01",
+  "metadata": {
+    "attempt": 1,
+    "timeout_seconds": 30.0,
+    "idempotency_key": "INC-001:FRAME-000002:ORCHESTRATOR"
+  }
+}

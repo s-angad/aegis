@@ -1,118 +1,137 @@
-"""
-AEGIS FLOOD v2.0 - Router & Dispatch Agent Implementation (Phase 4A)
-Formulates recommended DispatchPlan and route options based on ActionPlan and road graph.
-IMPORTANT: Recommendation only - does NOT directly dispatch real-world assets.
-"""
 from typing import Dict, Any
 from .base import BaseAgent
 from ..schemas.context import AgentContext
-from ..schemas.contracts import DispatchPlan
+from ..schemas.contracts import DispatchPlan, GPTRouterDispatchOutput
+from ..services.openai_service import openai_agent_service
+
+ROUTER_SYSTEM_PROMPT = """You are AEGIS FLOOD Router & Dispatch Agent.
+Your responsibility is operational routing.
+You answer: HOW should the approved response action be executed?
+You must use the provided network topology and resource state.
+Do not invent roads.
+Do not invent resources.
+Do not dispatch anything unless an action is justified.
+If the Orchestrator recommends STANDBY, return DISPATCH_STATUS = STANDBY.
+For emergency routes:
+- avoid blocked roads
+- avoid failed bridges
+- prefer valid connected routes
+- identify resource
+- identify destination
+- provide route
+You NEVER directly execute a real-world dispatch."""
 
 
 class RouterDispatchAgent(BaseAgent):
     name: str = "ROUTER_DISPATCH"
     version: str = "1.0.0"
-    timeout_seconds: float = 5.0
+    timeout_seconds: float = 30.0
     max_retries: int = 2
 
     async def _run(self, context: AgentContext) -> Dict[str, Any]:
+        obs = context.observation or {}
+        obs_id = obs.get("observation_id", f"OBS-{context.frame_id}")
         recon_result = context.agent_results.get("RECON", {}).get("result", {})
         orchestrator_result = context.agent_results.get("ORCHESTRATOR", {}).get("result", {})
 
         affected_infra = recon_result.get("affected_infrastructure", [])
-        actions = orchestrator_result.get("actions", [])
-        resources = orchestrator_result.get("resources_requested", [])
-
         blocked_roads = [infra.replace("ROAD:", "") for infra in affected_infra if infra.startswith("ROAD:")]
 
-        dispatches = []
-        routes = []
-        alt_routes = []
-        est_times = {}
+        # 1. REAL MODE: Attempt GPT-5.6 Luna Execution
+        if openai_agent_service.is_available():
+            gpt_payload = {
+                "observation_id": obs_id,
+                "frame_id": context.frame_id,
+                "recon_result": recon_result,
+                "orchestrator_result": orchestrator_result,
+                "blocked_roads": blocked_roads,
+                "bridge_status": recon_result.get("bridge_status", "OPEN"),
+                "network_graph": "S1-S16 grid network with central river bridge S7"
+            }
 
-        for idx, act in enumerate(actions):
-            unit_id = resources[idx] if idx < len(resources) else f"AUX_UNIT_{idx+1}"
-            target_sector = act.get("target_sector", "S1")
+            gpt_out, meta = await openai_agent_service.call_agent(
+                agent_name=self.name,
+                system_prompt=ROUTER_SYSTEM_PROMPT,
+                user_payload=gpt_payload,
+                response_schema=GPTRouterDispatchOutput,
+                frame_id=context.frame_id,
+                observation_id=obs_id
+            )
 
-            dispatches.append({
-                "dispatch_id": f"DSP-{idx+1:03d}",
-                "unit_id": unit_id,
-                "target_sector": target_sector,
-                "action_type": act.get("type"),
-                "status": "RECOMMENDED_PENDING_APPROVAL"
-            })
+            if gpt_out:
+                res_dict = gpt_out.model_dump(mode="json")
+                res_dict.update({
+                    "agent": "router_dispatch",
+                    "status": "complete",
+                    "dispatch_status": gpt_out.dispatch_status,
+                    "network_status": "CLEAR" if gpt_out.dispatch_status == "STANDBY" else "DISPATCHED",
+                    "blocked_roads": gpt_out.blocked_reasons if gpt_out.blocked_reasons else blocked_roads,
+                    "routes": gpt_out.routes,
+                    "dispatches": gpt_out.routes,
+                    "confidence": gpt_out.confidence,
+                    "_confidence": gpt_out.confidence,
+                    "source": "GPT_5_6_LUNA",
+                    "source_frame": context.frame_id,
+                    "source_observation_id": obs_id,
+                    "model": openai_agent_service.model,
+                    "meta": meta
+                })
+                return res_dict
 
-            # Primary Route
-            routes.append({
-                "unit_id": unit_id,
-                "destination_sector": target_sector,
-                "path": ["S1", "S5", target_sector] if target_sector != "S1" else ["S1"],
-                "uses_blocked_road": any(r in blocked_roads for r in ["ROAD-H-S6", "ROAD-V-S7"])
-            })
-
-            # Alternative Bypass Route avoiding blocked roads
-            alt_routes.append({
-                "unit_id": unit_id,
-                "destination_sector": target_sector,
-                "bypass_path": ["S1", "S2", "S3", "S4", "S8", target_sector] if target_sector != "S1" else ["S1"],
-                "avoids_all_blocked_roads": True
-            })
-
-            est_times[unit_id] = 180.0 + idx * 45.0  # seconds
-
-        r_confidence = 0.88
-
-        dispatch_plan = DispatchPlan(
-            dispatches=dispatches,
-            routes=routes,
-            blocked_roads=blocked_roads,
-            alternative_routes=alt_routes,
-            estimated_times=est_times,
-            confidence=r_confidence
-        )
-
+        # 2. SIMULATION MODE or API Fallback Execution
         orch_priority = orchestrator_result.get("priority", "NORMAL")
-        if orch_priority == "NORMAL" or not dispatches:
+        actions = orchestrator_result.get("actions", [])
+
+        if orch_priority in ["NORMAL", "STANDBY"] or not actions:
             status_val = "STANDBY"
             net_status = "CLEAR"
             phase4b_routes = []
             phase4b_dispatches = []
             blocked_roads_out = []
         else:
-            status_val = "ACTIVE"
+            status_val = "READY"
             net_status = "DISPATCHED"
             phase4b_routes = [
                 {
-                    "resource": d["unit_id"],
+                    "resource": "BOAT-01",
                     "from": "BASE-HQ",
-                    "to": d["target_sector"],
-                    "route": ["R01", d["target_sector"]]
+                    "to": act.get("sector", "S6"),
+                    "route": ["R01", act.get("sector", "S6")]
                 }
-                for d in dispatches
+                for act in actions if act.get("action") != "MONITOR"
             ]
             phase4b_dispatches = [
                 {
-                    "resource": d["unit_id"],
-                    "destination": d["target_sector"],
+                    "resource": "BOAT-01",
+                    "destination": act.get("sector", "S6"),
                     "priority": orch_priority
                 }
-                for d in dispatches
+                for act in actions if act.get("action") != "MONITOR"
             ]
             blocked_roads_out = blocked_roads
+
+        dispatch_plan = DispatchPlan(
+            dispatches=phase4b_dispatches,
+            routes=phase4b_routes,
+            blocked_roads=blocked_roads_out,
+            confidence=0.88
+        )
 
         output = dispatch_plan.model_dump(mode="json")
         output.update({
             "agent": "router_dispatch",
             "status": "complete",
-            "source": "ROUTING_AND_DISPATCH",
-            "source_frame": context.frame_id,
-            "timestamp": context.timestamp,
             "dispatch_status": status_val,
             "network_status": net_status,
             "blocked_roads": blocked_roads_out,
             "routes": phase4b_routes,
             "dispatches": phase4b_dispatches,
-            "confidence": r_confidence,
-            "_confidence": r_confidence
+            "source": "ROUTING_AND_DISPATCH",
+            "source_frame": context.frame_id,
+            "source_observation_id": obs_id,
+            "model": "SIMULATION",
+            "timestamp": context.timestamp,
+            "confidence": 0.88,
+            "_confidence": 0.88
         })
         return output

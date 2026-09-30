@@ -1,0 +1,48 @@
+{
+  "agent": "VERIFIER",
+  "agent_version": "1.0.0",
+  "frame_id": "FRAME-000006",
+  "incident_id": "INC-001",
+  "status": "SUCCESS",
+  "confidence": 0.96,
+  "execution_time_ms": 0.95,
+  "result": {
+    "verified": true,
+    "confidence": 0.96,
+    "newly_affected_sectors": [
+      "S4",
+      "S8",
+      "S12"
+    ],
+    "anomalies": [],
+    "inconsistencies": [],
+    "evidence": [
+      "Frame FRAME-000006 verified.",
+      "Coverage Delta: +27.0%."
+    ],
+    "verification_summary": "Verification PASSED",
+    "agent": "verifier",
+    "status": "complete",
+    "verification_status": "PASS",
+    "summary": "Verification PASSED",
+    "source": "RECON_VERIFICATION",
+    "source_frame": "FRAME-000006",
+    "source_observation_id": "OBS-SIM-SIM-20260916-123539-DD2E-06",
+    "model": "SIMULATION",
+    "timestamp": "12:36:00 PM",
+    "severity": "HIGH",
+    "recovered_sectors": [],
+    "contradictions": [],
+    "flood_change_percent": 27.0,
+    "observation_consistency": 0.96,
+    "anomaly_detected": false
+  },
+  "warnings": [],
+  "errors": [],
+  "timestamp": "2026-09-16 07:06:01",
+  "metadata": {
+    "attempt": 1,
+    "timeout_seconds": 30.0,
+    "idempotency_key": "INC-001:FRAME-000006:VERIFIER"
+  }
+}

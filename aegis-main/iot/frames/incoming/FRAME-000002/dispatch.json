@@ -5,39 +5,91 @@
   "incident_id": "INC-001",
   "status": "SUCCESS",
   "confidence": 0.88,
-  "execution_time_ms": 0.0,
+  "execution_time_ms": 0.51,
   "result": {
-    "dispatches": [],
-    "routes": [],
-    "blocked_roads": [],
-    "alternative_routes": [
+    "dispatches": [
       {
-        "unit_id": "AUX_UNIT_1",
-        "destination_sector": "S1",
-        "bypass_path": [
-          "S1"
-        ],
-        "avoids_all_blocked_roads": true
+        "resource": "BOAT-01",
+        "destination": "S6",
+        "priority": "HIGH"
+      },
+      {
+        "resource": "BOAT-01",
+        "destination": "S6",
+        "priority": "HIGH"
+      },
+      {
+        "resource": "BOAT-01",
+        "destination": "S7",
+        "priority": "HIGH"
+      },
+      {
+        "resource": "BOAT-01",
+        "destination": "S7",
+        "priority": "HIGH"
       }
     ],
-    "estimated_times": {
-      "AUX_UNIT_1": 180.0
-    },
+    "routes": [
+      {
+        "resource": "BOAT-01",
+        "from": "BASE-HQ",
+        "to": "S6",
+        "route": [
+          "R01",
+          "S6"
+        ]
+      },
+      {
+        "resource": "BOAT-01",
+        "from": "BASE-HQ",
+        "to": "S6",
+        "route": [
+          "R01",
+          "S6"
+        ]
+      },
+      {
+        "resource": "BOAT-01",
+        "from": "BASE-HQ",
+        "to": "S7",
+        "route": [
+          "R01",
+          "S7"
+        ]
+      },
+      {
+        "resource": "BOAT-01",
+        "from": "BASE-HQ",
+        "to": "S7",
+        "route": [
+          "R01",
+          "S7"
+        ]
+      }
+    ],
+    "blocked_roads": [
+      "R06",
+      "R07"
+    ],
+    "alternative_routes": [],
+    "estimated_times": {},
     "confidence": 0.88,
     "agent": "router_dispatch",
     "status": "complete",
+    "dispatch_status": "READY",
+    "network_status": "DISPATCHED",
     "source": "ROUTING_AND_DISPATCH",
     "source_frame": "FRAME-000002",
-    "timestamp": "",
-    "dispatch_status": "STANDBY",
-    "network_status": "CLEAR"
+    "source_observation_id": "OBS-SIM-02-47136e",
+    "model": "SIMULATION",
+    "timestamp": "11:51:05 AM"
   },
   "warnings": [],
   "errors": [],
-  "timestamp": "2026-09-16 04:12:59",
+  "timestamp": "2026-09-16 06:21:08",
   "metadata": {
     "attempt": 1,
-    "timeout_seconds": 5.0,
+    "timeout_seconds": 30.0,
     "idempotency_key": "INC-001:FRAME-000002:ROUTER_DISPATCH"
   }
 }

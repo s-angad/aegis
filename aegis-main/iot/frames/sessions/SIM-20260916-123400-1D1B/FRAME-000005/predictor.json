@@ -1,0 +1,53 @@
+{
+  "agent": "PREDICTOR",
+  "agent_version": "1.0.0",
+  "frame_id": "FRAME-000005",
+  "incident_id": "INC-001",
+  "status": "SUCCESS",
+  "confidence": 0.85,
+  "execution_time_ms": 0.0,
+  "result": {
+    "horizon_seconds": 900.0,
+    "predicted_sectors": [
+      "S1",
+      "S2",
+      "S3",
+      "S5",
+      "S6",
+      "S7",
+      "S9",
+      "S10",
+      "S11",
+      "S13",
+      "S14",
+      "S15",
+      "S16"
+    ],
+    "predicted_flood_coverage": 78.6,
+    "risk_levels": {},
+    "confidence": 0.85,
+    "model_version": "SIMULATION-trend-v1",
+    "assumptions": [],
+    "agent": "predictor",
+    "status": "complete",
+    "prediction_status": "ESCALATING",
+    "summary": "Spatial forecast: ESCALATING (Risk: CRITICAL)",
+    "source": "TREND_PREDICTION",
+    "source_frame": "FRAME-000005",
+    "source_observation_id": "OBS-SIM-SIM-20260916-123400-1D1B-05",
+    "model": "SIMULATION",
+    "timestamp": "12:34:30 PM",
+    "current_risk": "CRITICAL",
+    "projected_risk": "CRITICAL",
+    "prediction_horizon_seconds": 900,
+    "predicted_flood_expansion_percent": 12.6
+  },
+  "warnings": [],
+  "errors": [],
+  "timestamp": "2026-09-16 07:04:32",
+  "metadata": {
+    "attempt": 1,
+    "timeout_seconds": 30.0,
+    "idempotency_key": "INC-001:FRAME-000005:PREDICTOR"
+  }
+}

@@ -8,10 +8,14 @@ import uuid
 
 
 class FrameImageMeta(BaseModel):
+    session_id: str = ""
+    frame_id: str = ""
     original_path: str = ""
     rectified_path: str = ""
     original_url: str = ""
     rectified_url: str = ""
+    image_hash: str = ""
+    image_size_bytes: int = 0
     width: int = 0
     height: int = 0
 
@@ -88,7 +92,9 @@ class QualityObservation(BaseModel):
 
 class Phase3Observation(BaseModel):
     observation_id: str = Field(default_factory=lambda: f"OBS-{uuid.uuid4().hex[:8]}")
+    session_id: str = ""
     frame_id: str
+    sequence: int = 1
     device_id: str = "PHONE-01"
     timestamp: str = Field(default_factory=lambda: datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S"))
     processing_state: str = "COMPLETED"  # RECEIVED, VALIDATING, PROCESSING, ANALYZED, COMPLETED, FAILED

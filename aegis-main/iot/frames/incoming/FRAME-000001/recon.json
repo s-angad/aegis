@@ -4,26 +4,28 @@
   "frame_id": "FRAME-000001",
   "incident_id": "INC-001",
   "status": "SUCCESS",
-  "confidence": 0.94,
-  "execution_time_ms": 0.69,
+  "confidence": 0.99,
+  "execution_time_ms": 0.0,
   "result": {
-    "situation_summary": "Aerial Recon: 0/16 sectors affected, overall flood coverage 0.0%. Critical sectors: None.",
+    "situation_summary": "\u2713 NO FLOOD DETECTED | Coverage: 0.0% | All sectors clear.",
     "affected_sectors": [],
     "critical_sectors": [],
     "affected_infrastructure": [],
     "flood_coverage": 0.0,
-    "confidence": 0.94,
+    "confidence": 0.99,
     "observations": [
-      "Frame FRAME-000001 evaluated with Phase 3 CV.",
-      "Total flood coverage measured at 0.0%.",
-      "Detected 0 impacted infrastructure items."
+      "Frame FRAME-000001 evaluated.",
+      "Coverage measured at 0.0%."
     ],
     "warnings": [],
     "agent": "recon",
-    "status": "complete",
+    "status": "NORMAL",
+    "summary": "\u2713 NO FLOOD DETECTED | Coverage: 0.0% | All sectors clear.",
     "source": "PHYSICAL_OBSERVATION",
     "source_frame": "FRAME-000001",
-    "timestamp": "",
+    "source_observation_id": "OBS-SIM-01-674cbf",
+    "model": "SIMULATION",
+    "timestamp": "11:51:01 AM",
     "flood_detected": false,
     "flood_coverage_percent": 0.0,
     "blocked_roads": [],
@@ -32,10 +34,10 @@
   },
   "warnings": [],
   "errors": [],
-  "timestamp": "2026-09-16 04:12:51",
+  "timestamp": "2026-09-16 06:21:02",
   "metadata": {
     "attempt": 1,
-    "timeout_seconds": 5.0,
+    "timeout_seconds": 30.0,
     "idempotency_key": "INC-001:FRAME-000001:RECON"
   }
 }

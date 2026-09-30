@@ -1,0 +1,175 @@
+{
+  "agent": "ORCHESTRATOR",
+  "agent_version": "1.0.0",
+  "frame_id": "FRAME-000005",
+  "incident_id": "INC-001",
+  "status": "SUCCESS",
+  "confidence": 0.9,
+  "execution_time_ms": 0.0,
+  "result": {
+    "priority": "CRITICAL",
+    "situation": "Flood hazard status: CRITICAL (affected: S1, S2, S3, S5, S6, S7, S9, S10, S11, S13, S14, S15, S16)",
+    "objectives": [
+      "Contain flood expansion in sectors S1, S2, S3, S5, S6, S7, S9, S10, S11, S13, S14, S15, S16.",
+      "Maintain emergency access corridors across physical testbed grid.",
+      "Prepare rescue assets for predicted high-risk sectors."
+    ],
+    "actions": [
+      {
+        "action": "EVACUATE",
+        "sector": "S1"
+      },
+      {
+        "action": "ALLOCATE_BOAT",
+        "resource": "BOAT-01",
+        "sector": "S1"
+      },
+      {
+        "action": "EVACUATE",
+        "sector": "S2"
+      },
+      {
+        "action": "ALLOCATE_BOAT",
+        "resource": "BOAT-01",
+        "sector": "S2"
+      },
+      {
+        "action": "EVACUATE",
+        "sector": "S3"
+      },
+      {
+        "action": "ALLOCATE_BOAT",
+        "resource": "BOAT-01",
+        "sector": "S3"
+      },
+      {
+        "action": "EVACUATE",
+        "sector": "S5"
+      },
+      {
+        "action": "ALLOCATE_BOAT",
+        "resource": "BOAT-01",
+        "sector": "S5"
+      },
+      {
+        "action": "EVACUATE",
+        "sector": "S6"
+      },
+      {
+        "action": "ALLOCATE_BOAT",
+        "resource": "BOAT-01",
+        "sector": "S6"
+      },
+      {
+        "action": "EVACUATE",
+        "sector": "S7"
+      },
+      {
+        "action": "ALLOCATE_BOAT",
+        "resource": "BOAT-01",
+        "sector": "S7"
+      },
+      {
+        "action": "EVACUATE",
+        "sector": "S9"
+      },
+      {
+        "action": "ALLOCATE_BOAT",
+        "resource": "BOAT-01",
+        "sector": "S9"
+      },
+      {
+        "action": "EVACUATE",
+        "sector": "S10"
+      },
+      {
+        "action": "ALLOCATE_BOAT",
+        "resource": "BOAT-01",
+        "sector": "S10"
+      },
+      {
+        "action": "EVACUATE",
+        "sector": "S11"
+      },
+      {
+        "action": "ALLOCATE_BOAT",
+        "resource": "BOAT-01",
+        "sector": "S11"
+      },
+      {
+        "action": "EVACUATE",
+        "sector": "S13"
+      },
+      {
+        "action": "ALLOCATE_BOAT",
+        "resource": "BOAT-01",
+        "sector": "S13"
+      },
+      {
+        "action": "EVACUATE",
+        "sector": "S14"
+      },
+      {
+        "action": "ALLOCATE_BOAT",
+        "resource": "BOAT-01",
+        "sector": "S14"
+      },
+      {
+        "action": "EVACUATE",
+        "sector": "S15"
+      },
+      {
+        "action": "ALLOCATE_BOAT",
+        "resource": "BOAT-01",
+        "sector": "S15"
+      },
+      {
+        "action": "EVACUATE",
+        "sector": "S16"
+      },
+      {
+        "action": "ALLOCATE_BOAT",
+        "resource": "BOAT-01",
+        "sector": "S16"
+      }
+    ],
+    "resources_requested": [
+      "BOAT-01"
+    ],
+    "sectors": [
+      "S1",
+      "S2",
+      "S3",
+      "S5",
+      "S6",
+      "S7",
+      "S9",
+      "S10",
+      "S11",
+      "S13",
+      "S14",
+      "S15",
+      "S16"
+    ],
+    "requires_approval": true,
+    "confidence": 0.9,
+    "rationale": "Active flood detected in sectors S1, S2, S3, S5, S6, S7, S9, S10, S11, S13, S14, S15, S16 with predicted spread toward S1, S2, S3, S5, S6, S7, S9, S10, S11, S13, S14, S15, S16.",
+    "agent": "orchestrator",
+    "status": "complete",
+    "decision": "Active flood detected in sectors S1, S2, S3, S5, S6, S7, S9, S10, S11, S13, S14, S15, S16 with predicted spread toward S1, S2, S3, S5, S6, S7, S9, S10, S11, S13, S14, S15, S16.",
+    "reasoning_summary": "Active flood detected in sectors S1, S2, S3, S5, S6, S7, S9, S10, S11, S13, S14, S15, S16 with predicted spread toward S1, S2, S3, S5, S6, S7, S9, S10, S11, S13, S14, S15, S16.",
+    "source": "STRATEGIC_ORCHESTRATION",
+    "source_frame": "FRAME-000005",
+    "source_observation_id": "OBS-SIM-SIM-20260916-123400-1D1B-05",
+    "model": "SIMULATION",
+    "timestamp": "12:34:30 PM"
+  },
+  "warnings": [],
+  "errors": [],
+  "timestamp": "2026-09-16 07:04:33",
+  "metadata": {
+    "attempt": 1,
+    "timeout_seconds": 30.0,
+    "idempotency_key": "INC-001:FRAME-000005:ORCHESTRATOR"
+  }
+}

@@ -5,7 +5,7 @@
   "incident_id": "INC-001",
   "status": "SUCCESS",
   "confidence": 0.9,
-  "execution_time_ms": 0.0,
+  "execution_time_ms": 0.51,
   "result": {
     "priority": "NORMAL",
     "situation": "Flood hazard status: NORMAL (affected: none)",
@@ -24,20 +24,23 @@
     "sectors": [],
     "requires_approval": true,
     "confidence": 0.9,
-    "rationale": "Formulated recommended action plan for incident INC-001 (Frame FRAME-000001). Prioritizes active containment across 0 affected sectors and 0 predicted surge sectors.",
+    "rationale": "No active flooding detected across physical testbed model. Continuing routine surveillance.",
     "agent": "orchestrator",
     "status": "complete",
+    "decision": "No active flooding detected across physical testbed model. Continuing routine surveillance.",
+    "reasoning_summary": "No active flooding detected across physical testbed model. Continuing routine surveillance.",
     "source": "STRATEGIC_ORCHESTRATION",
     "source_frame": "FRAME-000001",
-    "timestamp": "",
-    "reasoning_summary": "No active flooding detected across physical testbed model. Continuing routine surveillance."
+    "source_observation_id": "OBS-SIM-01-674cbf",
+    "model": "SIMULATION",
+    "timestamp": "11:51:01 AM"
   },
   "warnings": [],
   "errors": [],
-  "timestamp": "2026-09-16 04:12:53",
+  "timestamp": "2026-09-16 06:21:04",
   "metadata": {
     "attempt": 1,
-    "timeout_seconds": 5.0,
+    "timeout_seconds": 30.0,
     "idempotency_key": "INC-001:FRAME-000001:ORCHESTRATOR"
   }
 }

@@ -1,0 +1,95 @@
+{
+  "agent": "ORCHESTRATOR",
+  "agent_version": "1.0.0",
+  "frame_id": "FRAME-000003",
+  "incident_id": "INC-001",
+  "status": "SUCCESS",
+  "confidence": 0.9,
+  "execution_time_ms": 0.0,
+  "result": {
+    "priority": "CRITICAL",
+    "situation": "Flood hazard status: CRITICAL (affected: S2, S6, S7, S10, S11)",
+    "objectives": [
+      "Contain flood expansion in sectors S2, S6, S7, S10, S11.",
+      "Maintain emergency access corridors across physical testbed grid.",
+      "Prepare rescue assets for predicted high-risk sectors."
+    ],
+    "actions": [
+      {
+        "action": "EVACUATE",
+        "sector": "S2"
+      },
+      {
+        "action": "ALLOCATE_BOAT",
+        "resource": "BOAT-01",
+        "sector": "S2"
+      },
+      {
+        "action": "EVACUATE",
+        "sector": "S6"
+      },
+      {
+        "action": "ALLOCATE_BOAT",
+        "resource": "BOAT-01",
+        "sector": "S6"
+      },
+      {
+        "action": "EVACUATE",
+        "sector": "S7"
+      },
+      {
+        "action": "ALLOCATE_BOAT",
+        "resource": "BOAT-01",
+        "sector": "S7"
+      },
+      {
+        "action": "EVACUATE",
+        "sector": "S10"
+      },
+      {
+        "action": "ALLOCATE_BOAT",
+        "resource": "BOAT-01",
+        "sector": "S10"
+      },
+      {
+        "action": "EVACUATE",
+        "sector": "S11"
+      },
+      {
+        "action": "ALLOCATE_BOAT",
+        "resource": "BOAT-01",
+        "sector": "S11"
+      }
+    ],
+    "resources_requested": [
+      "BOAT-01"
+    ],
+    "sectors": [
+      "S2",
+      "S6",
+      "S7",
+      "S10",
+      "S11"
+    ],
+    "requires_approval": true,
+    "confidence": 0.9,
+    "rationale": "Active flood detected in sectors S2, S6, S7, S10, S11 with predicted spread toward S2, S6, S7, S10, S11.",
+    "agent": "orchestrator",
+    "status": "complete",
+    "decision": "Active flood detected in sectors S2, S6, S7, S10, S11 with predicted spread toward S2, S6, S7, S10, S11.",
+    "reasoning_summary": "Active flood detected in sectors S2, S6, S7, S10, S11 with predicted spread toward S2, S6, S7, S10, S11.",
+    "source": "STRATEGIC_ORCHESTRATION",
+    "source_frame": "FRAME-000003",
+    "source_observation_id": "OBS-SIM-SIM-20260916-143044-FC72-03",
+    "model": "SIMULATION",
+    "timestamp": "2:31:46 PM"
+  },
+  "warnings": [],
+  "errors": [],
+  "timestamp": "2026-09-16 09:01:49",
+  "metadata": {
+    "attempt": 1,
+    "timeout_seconds": 30.0,
+    "idempotency_key": "INC-001:FRAME-000003:ORCHESTRATOR"
+  }
+}

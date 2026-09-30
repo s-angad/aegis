@@ -1,0 +1,39 @@
+{
+  "agent": "PREDICTOR",
+  "agent_version": "1.0.0",
+  "frame_id": "FRAME-000001",
+  "incident_id": "INC-001",
+  "status": "SUCCESS",
+  "confidence": 0.85,
+  "execution_time_ms": 1.01,
+  "result": {
+    "horizon_seconds": 900.0,
+    "predicted_sectors": [],
+    "predicted_flood_coverage": 0.0,
+    "risk_levels": {},
+    "confidence": 0.85,
+    "model_version": "SIMULATION-trend-v1",
+    "assumptions": [],
+    "agent": "predictor",
+    "status": "complete",
+    "prediction_status": "NO_ACTIVE_FLOOD",
+    "summary": "Spatial forecast: NO_ACTIVE_FLOOD (Risk: NORMAL)",
+    "source": "TREND_PREDICTION",
+    "source_frame": "FRAME-000001",
+    "source_observation_id": "OBS-SIM-SIM-20260916-123454-8DB6-01",
+    "model": "SIMULATION",
+    "timestamp": "12:34:54 PM",
+    "current_risk": "NORMAL",
+    "projected_risk": "NORMAL",
+    "prediction_horizon_seconds": 900,
+    "predicted_flood_expansion_percent": 0.0
+  },
+  "warnings": [],
+  "errors": [],
+  "timestamp": "2026-09-16 07:04:56",
+  "metadata": {
+    "attempt": 1,
+    "timeout_seconds": 30.0,
+    "idempotency_key": "INC-001:FRAME-000001:PREDICTOR"
+  }
+}

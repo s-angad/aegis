@@ -10,34 +10,25 @@
     "dispatches": [],
     "routes": [],
     "blocked_roads": [],
-    "alternative_routes": [
-      {
-        "unit_id": "AUX_UNIT_1",
-        "destination_sector": "S1",
-        "bypass_path": [
-          "S1"
-        ],
-        "avoids_all_blocked_roads": true
-      }
-    ],
-    "estimated_times": {
-      "AUX_UNIT_1": 180.0
-    },
+    "alternative_routes": [],
+    "estimated_times": {},
     "confidence": 0.88,
     "agent": "router_dispatch",
     "status": "complete",
+    "dispatch_status": "STANDBY",
+    "network_status": "CLEAR",
     "source": "ROUTING_AND_DISPATCH",
     "source_frame": "FRAME-000001",
-    "timestamp": "",
-    "dispatch_status": "STANDBY",
-    "network_status": "CLEAR"
+    "source_observation_id": "OBS-SIM-01-674cbf",
+    "model": "SIMULATION",
+    "timestamp": "11:51:01 AM"
   },
   "warnings": [],
   "errors": [],
-  "timestamp": "2026-09-16 04:12:54",
+  "timestamp": "2026-09-16 06:21:04",
   "metadata": {
     "attempt": 1,
-    "timeout_seconds": 5.0,
+    "timeout_seconds": 30.0,
     "idempotency_key": "INC-001:FRAME-000001:ROUTER_DISPATCH"
   }
 }

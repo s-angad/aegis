@@ -1,0 +1,67 @@
+{
+  "agent": "RECON",
+  "agent_version": "1.0.0",
+  "frame_id": "FRAME-000003",
+  "incident_id": "INC-001",
+  "status": "SUCCESS",
+  "confidence": 0.99,
+  "execution_time_ms": 1.39,
+  "result": {
+    "situation_summary": "Aerial Recon: 5/16 sectors affected, overall flood coverage 27.0%. Critical sectors: S6, S7.",
+    "affected_sectors": [
+      "S2",
+      "S6",
+      "S7",
+      "S10",
+      "S11"
+    ],
+    "critical_sectors": [
+      "S6",
+      "S7"
+    ],
+    "affected_infrastructure": [
+      "ROAD:R02",
+      "ROAD:R06",
+      "ROAD:R07",
+      "ROAD:R10",
+      "ROAD:R11",
+      "ROAD:R18",
+      "BRIDGE:BRIDGE-01 (BLOCKED)"
+    ],
+    "flood_coverage": 27.0,
+    "confidence": 0.99,
+    "observations": [
+      "Frame FRAME-000003 evaluated.",
+      "Coverage measured at 27.0%."
+    ],
+    "warnings": [],
+    "agent": "recon",
+    "status": "CRITICAL",
+    "summary": "Aerial Recon: 5/16 sectors affected, overall flood coverage 27.0%. Critical sectors: S6, S7.",
+    "source": "PHYSICAL_OBSERVATION",
+    "source_frame": "FRAME-000003",
+    "source_observation_id": "OBS-SIM-SIM-20260916-123608-2C0A-03",
+    "model": "SIMULATION",
+    "timestamp": "2:30:37 PM",
+    "flood_detected": true,
+    "flood_coverage_percent": 27.0,
+    "blocked_roads": [
+      "R02",
+      "R06",
+      "R07",
+      "R10",
+      "R11",
+      "R18"
+    ],
+    "bridge_status": "BLOCKED",
+    "affected_buildings": 30
+  },
+  "warnings": [],
+  "errors": [],
+  "timestamp": "2026-09-16 09:00:38",
+  "metadata": {
+    "attempt": 1,
+    "timeout_seconds": 30.0,
+    "idempotency_key": "INC-001:FRAME-000003:RECON"
+  }
+}

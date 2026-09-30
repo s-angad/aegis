@@ -4,38 +4,50 @@
   "frame_id": "FRAME-000002",
   "incident_id": "INC-001",
   "status": "SUCCESS",
-  "confidence": 0.94,
-  "execution_time_ms": 0.0,
+  "confidence": 0.99,
+  "execution_time_ms": 0.6,
   "result": {
-    "situation_summary": "Aerial Recon: 0/16 sectors affected, overall flood coverage 0.0%. Critical sectors: None.",
-    "affected_sectors": [],
+    "situation_summary": "Aerial Recon: 2/16 sectors affected, overall flood coverage 14.0%. Critical sectors: None.",
+    "affected_sectors": [
+      "S6",
+      "S7"
+    ],
     "critical_sectors": [],
-    "affected_infrastructure": [],
-    "flood_coverage": 0.0,
-    "confidence": 0.94,
+    "affected_infrastructure": [
+      "ROAD:R06",
+      "ROAD:R07",
+      "BRIDGE:BRIDGE-01 (AT_RISK)"
+    ],
+    "flood_coverage": 14.0,
+    "confidence": 0.99,
     "observations": [
-      "Frame FRAME-000002 evaluated with Phase 3 CV.",
-      "Total flood coverage measured at 0.0%.",
-      "Detected 0 impacted infrastructure items."
+      "Frame FRAME-000002 evaluated.",
+      "Coverage measured at 14.0%."
     ],
     "warnings": [],
     "agent": "recon",
-    "status": "complete",
+    "status": "ALERT",
+    "summary": "Aerial Recon: 2/16 sectors affected, overall flood coverage 14.0%. Critical sectors: None.",
     "source": "PHYSICAL_OBSERVATION",
     "source_frame": "FRAME-000002",
-    "timestamp": "",
-    "flood_detected": false,
-    "flood_coverage_percent": 0.0,
-    "blocked_roads": [],
-    "bridge_status": "OPEN",
-    "affected_buildings": 0
+    "source_observation_id": "OBS-SIM-02-47136e",
+    "model": "SIMULATION",
+    "timestamp": "11:51:05 AM",
+    "flood_detected": true,
+    "flood_coverage_percent": 14.0,
+    "blocked_roads": [
+      "R06",
+      "R07"
+    ],
+    "bridge_status": "AT_RISK",
+    "affected_buildings": 12
   },
   "warnings": [],
   "errors": [],
-  "timestamp": "2026-09-16 04:12:56",
+  "timestamp": "2026-09-16 06:21:06",
   "metadata": {
     "attempt": 1,
-    "timeout_seconds": 5.0,
+    "timeout_seconds": 30.0,
     "idempotency_key": "INC-001:FRAME-000002:RECON"
   }
 }

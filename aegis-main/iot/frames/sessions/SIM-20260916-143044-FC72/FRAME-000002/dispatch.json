@@ -1,0 +1,95 @@
+{
+  "agent": "ROUTER_DISPATCH",
+  "agent_version": "1.0.0",
+  "frame_id": "FRAME-000002",
+  "incident_id": "INC-001",
+  "status": "SUCCESS",
+  "confidence": 0.88,
+  "execution_time_ms": 0.0,
+  "result": {
+    "dispatches": [
+      {
+        "resource": "BOAT-01",
+        "destination": "S6",
+        "priority": "HIGH"
+      },
+      {
+        "resource": "BOAT-01",
+        "destination": "S6",
+        "priority": "HIGH"
+      },
+      {
+        "resource": "BOAT-01",
+        "destination": "S7",
+        "priority": "HIGH"
+      },
+      {
+        "resource": "BOAT-01",
+        "destination": "S7",
+        "priority": "HIGH"
+      }
+    ],
+    "routes": [
+      {
+        "resource": "BOAT-01",
+        "from": "BASE-HQ",
+        "to": "S6",
+        "route": [
+          "R01",
+          "S6"
+        ]
+      },
+      {
+        "resource": "BOAT-01",
+        "from": "BASE-HQ",
+        "to": "S6",
+        "route": [
+          "R01",
+          "S6"
+        ]
+      },
+      {
+        "resource": "BOAT-01",
+        "from": "BASE-HQ",
+        "to": "S7",
+        "route": [
+          "R01",
+          "S7"
+        ]
+      },
+      {
+        "resource": "BOAT-01",
+        "from": "BASE-HQ",
+        "to": "S7",
+        "route": [
+          "R01",
+          "S7"
+        ]
+      }
+    ],
+    "blocked_roads": [
+      "R06",
+      "R07"
+    ],
+    "alternative_routes": [],
+    "estimated_times": {},
+    "confidence": 0.88,
+    "agent": "router_dispatch",
+    "status": "complete",
+    "dispatch_status": "READY",
+    "network_status": "DISPATCHED",
+    "source": "ROUTING_AND_DISPATCH",
+    "source_frame": "FRAME-000002",
+    "source_observation_id": "OBS-SIM-SIM-20260916-143044-FC72-02",
+    "model": "SIMULATION",
+    "timestamp": "2:31:42 PM"
+  },
+  "warnings": [],
+  "errors": [],
+  "timestamp": "2026-09-16 09:01:45",
+  "metadata": {
+    "attempt": 1,
+    "timeout_seconds": 30.0,
+    "idempotency_key": "INC-001:FRAME-000002:ROUTER_DISPATCH"
+  }
+}

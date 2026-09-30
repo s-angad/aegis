@@ -49,6 +49,18 @@ class IntelligenceStateManager:
             "agent_timeouts": 0
         }
 
+    def reset_state(self):
+        """Clears all frame history, idempotency keys, and observation pointers for a fresh session."""
+        self.current_frame_id = None
+        self.previous_frame_id = None
+        self.current_observation = None
+        self.previous_observation = None
+        self.agent_results_history.clear()
+        self.completed_idempotency_keys.clear()
+        for agent_name in self.agent_statuses:
+            self.agent_statuses[agent_name] = "WAITING"
+        logger.info("[IntelligenceState] Cleared state for new simulation session")
+
     def set_agent_status(self, agent_name: str, status: str):
         """Update live status of an agent (e.g. WAITING, RUNNING, COMPLETE, FAILED)."""
         self.agent_statuses[agent_name] = status

@@ -9,31 +9,39 @@
   "result": {
     "verified": true,
     "confidence": 0.96,
-    "newly_affected_sectors": [],
+    "newly_affected_sectors": [
+      "S6",
+      "S7"
+    ],
     "anomalies": [],
     "inconsistencies": [],
     "evidence": [
-      "Frame FRAME-000002 verified against Frame N-1 temporal buffer.",
-      "Coverage Delta: +0.0%.",
-      "Newly affected sectors: None."
+      "Frame FRAME-000002 verified.",
+      "Coverage Delta: +14.0%."
     ],
-    "verification_summary": "Verification PASSED: 0 anomalies, 0 inconsistencies detected.",
+    "verification_summary": "Verification PASSED",
     "agent": "verifier",
     "status": "complete",
+    "verification_status": "PASS",
+    "summary": "Verification PASSED",
     "source": "RECON_VERIFICATION",
     "source_frame": "FRAME-000002",
-    "timestamp": "",
-    "severity": "NORMAL",
-    "flood_change_percent": 0.0,
+    "source_observation_id": "OBS-SIM-02-47136e",
+    "model": "SIMULATION",
+    "timestamp": "11:51:05 AM",
+    "severity": "MEDIUM",
+    "recovered_sectors": [],
+    "contradictions": [],
+    "flood_change_percent": 14.0,
     "observation_consistency": 0.96,
     "anomaly_detected": false
   },
   "warnings": [],
   "errors": [],
-  "timestamp": "2026-09-16 04:12:57",
+  "timestamp": "2026-09-16 06:21:06",
   "metadata": {
     "attempt": 1,
-    "timeout_seconds": 5.0,
+    "timeout_seconds": 30.0,
     "idempotency_key": "INC-001:FRAME-000002:VERIFIER"
   }
 }

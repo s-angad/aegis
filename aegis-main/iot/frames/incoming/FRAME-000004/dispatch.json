@@ -5,127 +5,325 @@
   "incident_id": "INC-001",
   "status": "SUCCESS",
   "confidence": 0.88,
-  "execution_time_ms": 0.54,
+  "execution_time_ms": 0.56,
   "result": {
     "dispatches": [
       {
-        "resource": "AUX_UNIT_1",
-        "destination": "S1",
-        "priority": "HIGH"
+        "resource": "BOAT-01",
+        "destination": "S2",
+        "priority": "CRITICAL"
       },
       {
-        "resource": "AUX_UNIT_2",
-        "destination": "S1",
-        "priority": "HIGH"
+        "resource": "BOAT-01",
+        "destination": "S2",
+        "priority": "CRITICAL"
       },
       {
-        "resource": "AUX_UNIT_3",
-        "destination": "S1",
-        "priority": "HIGH"
+        "resource": "BOAT-01",
+        "destination": "S3",
+        "priority": "CRITICAL"
       },
       {
-        "resource": "AUX_UNIT_4",
-        "destination": "S1",
-        "priority": "HIGH"
+        "resource": "BOAT-01",
+        "destination": "S3",
+        "priority": "CRITICAL"
+      },
+      {
+        "resource": "BOAT-01",
+        "destination": "S5",
+        "priority": "CRITICAL"
+      },
+      {
+        "resource": "BOAT-01",
+        "destination": "S5",
+        "priority": "CRITICAL"
+      },
+      {
+        "resource": "BOAT-01",
+        "destination": "S6",
+        "priority": "CRITICAL"
+      },
+      {
+        "resource": "BOAT-01",
+        "destination": "S6",
+        "priority": "CRITICAL"
+      },
+      {
+        "resource": "BOAT-01",
+        "destination": "S7",
+        "priority": "CRITICAL"
+      },
+      {
+        "resource": "BOAT-01",
+        "destination": "S7",
+        "priority": "CRITICAL"
+      },
+      {
+        "resource": "BOAT-01",
+        "destination": "S9",
+        "priority": "CRITICAL"
+      },
+      {
+        "resource": "BOAT-01",
+        "destination": "S9",
+        "priority": "CRITICAL"
+      },
+      {
+        "resource": "BOAT-01",
+        "destination": "S10",
+        "priority": "CRITICAL"
+      },
+      {
+        "resource": "BOAT-01",
+        "destination": "S10",
+        "priority": "CRITICAL"
+      },
+      {
+        "resource": "BOAT-01",
+        "destination": "S11",
+        "priority": "CRITICAL"
+      },
+      {
+        "resource": "BOAT-01",
+        "destination": "S11",
+        "priority": "CRITICAL"
+      },
+      {
+        "resource": "BOAT-01",
+        "destination": "S14",
+        "priority": "CRITICAL"
+      },
+      {
+        "resource": "BOAT-01",
+        "destination": "S14",
+        "priority": "CRITICAL"
+      },
+      {
+        "resource": "BOAT-01",
+        "destination": "S15",
+        "priority": "CRITICAL"
+      },
+      {
+        "resource": "BOAT-01",
+        "destination": "S15",
+        "priority": "CRITICAL"
       }
     ],
     "routes": [
       {
-        "resource": "AUX_UNIT_1",
+        "resource": "BOAT-01",
         "from": "BASE-HQ",
-        "to": "S1",
+        "to": "S2",
         "route": [
           "R01",
-          "S1"
+          "S2"
         ]
       },
       {
-        "resource": "AUX_UNIT_2",
+        "resource": "BOAT-01",
         "from": "BASE-HQ",
-        "to": "S1",
+        "to": "S2",
         "route": [
           "R01",
-          "S1"
+          "S2"
         ]
       },
       {
-        "resource": "AUX_UNIT_3",
+        "resource": "BOAT-01",
         "from": "BASE-HQ",
-        "to": "S1",
+        "to": "S3",
         "route": [
           "R01",
-          "S1"
+          "S3"
         ]
       },
       {
-        "resource": "AUX_UNIT_4",
+        "resource": "BOAT-01",
         "from": "BASE-HQ",
-        "to": "S1",
+        "to": "S3",
         "route": [
           "R01",
-          "S1"
+          "S3"
+        ]
+      },
+      {
+        "resource": "BOAT-01",
+        "from": "BASE-HQ",
+        "to": "S5",
+        "route": [
+          "R01",
+          "S5"
+        ]
+      },
+      {
+        "resource": "BOAT-01",
+        "from": "BASE-HQ",
+        "to": "S5",
+        "route": [
+          "R01",
+          "S5"
+        ]
+      },
+      {
+        "resource": "BOAT-01",
+        "from": "BASE-HQ",
+        "to": "S6",
+        "route": [
+          "R01",
+          "S6"
+        ]
+      },
+      {
+        "resource": "BOAT-01",
+        "from": "BASE-HQ",
+        "to": "S6",
+        "route": [
+          "R01",
+          "S6"
+        ]
+      },
+      {
+        "resource": "BOAT-01",
+        "from": "BASE-HQ",
+        "to": "S7",
+        "route": [
+          "R01",
+          "S7"
+        ]
+      },
+      {
+        "resource": "BOAT-01",
+        "from": "BASE-HQ",
+        "to": "S7",
+        "route": [
+          "R01",
+          "S7"
+        ]
+      },
+      {
+        "resource": "BOAT-01",
+        "from": "BASE-HQ",
+        "to": "S9",
+        "route": [
+          "R01",
+          "S9"
+        ]
+      },
+      {
+        "resource": "BOAT-01",
+        "from": "BASE-HQ",
+        "to": "S9",
+        "route": [
+          "R01",
+          "S9"
+        ]
+      },
+      {
+        "resource": "BOAT-01",
+        "from": "BASE-HQ",
+        "to": "S10",
+        "route": [
+          "R01",
+          "S10"
+        ]
+      },
+      {
+        "resource": "BOAT-01",
+        "from": "BASE-HQ",
+        "to": "S10",
+        "route": [
+          "R01",
+          "S10"
+        ]
+      },
+      {
+        "resource": "BOAT-01",
+        "from": "BASE-HQ",
+        "to": "S11",
+        "route": [
+          "R01",
+          "S11"
+        ]
+      },
+      {
+        "resource": "BOAT-01",
+        "from": "BASE-HQ",
+        "to": "S11",
+        "route": [
+          "R01",
+          "S11"
+        ]
+      },
+      {
+        "resource": "BOAT-01",
+        "from": "BASE-HQ",
+        "to": "S14",
+        "route": [
+          "R01",
+          "S14"
+        ]
+      },
+      {
+        "resource": "BOAT-01",
+        "from": "BASE-HQ",
+        "to": "S14",
+        "route": [
+          "R01",
+          "S14"
+        ]
+      },
+      {
+        "resource": "BOAT-01",
+        "from": "BASE-HQ",
+        "to": "S15",
+        "route": [
+          "R01",
+          "S15"
+        ]
+      },
+      {
+        "resource": "BOAT-01",
+        "from": "BASE-HQ",
+        "to": "S15",
+        "route": [
+          "R01",
+          "S15"
         ]
       }
     ],
     "blocked_roads": [
-      "ROAD-H-S1",
-      "ROAD-V-S1"
+      "R02",
+      "R03",
+      "R05",
+      "R06",
+      "R07",
+      "R09",
+      "R10",
+      "R11",
+      "R14",
+      "R15",
+      "R18",
+      "R19"
     ],
-    "alternative_routes": [
-      {
-        "unit_id": "AUX_UNIT_1",
-        "destination_sector": "S1",
-        "bypass_path": [
-          "S1"
-        ],
-        "avoids_all_blocked_roads": true
-      },
-      {
-        "unit_id": "AUX_UNIT_2",
-        "destination_sector": "S1",
-        "bypass_path": [
-          "S1"
-        ],
-        "avoids_all_blocked_roads": true
-      },
-      {
-        "unit_id": "AUX_UNIT_3",
-        "destination_sector": "S1",
-        "bypass_path": [
-          "S1"
-        ],
-        "avoids_all_blocked_roads": true
-      },
-      {
-        "unit_id": "AUX_UNIT_4",
-        "destination_sector": "S1",
-        "bypass_path": [
-          "S1"
-        ],
-        "avoids_all_blocked_roads": true
-      }
-    ],
-    "estimated_times": {
-      "AUX_UNIT_1": 180.0,
-      "AUX_UNIT_2": 225.0,
-      "AUX_UNIT_3": 270.0,
-      "AUX_UNIT_4": 315.0
-    },
+    "alternative_routes": [],
+    "estimated_times": {},
     "confidence": 0.88,
     "agent": "router_dispatch",
     "status": "complete",
+    "dispatch_status": "READY",
+    "network_status": "DISPATCHED",
     "source": "ROUTING_AND_DISPATCH",
     "source_frame": "FRAME-000004",
-    "timestamp": "9:43:06 AM",
-    "dispatch_status": "ACTIVE",
-    "network_status": "DISPATCHED"
+    "source_observation_id": "OBS-SIM-04-44f9a9",
+    "model": "SIMULATION",
+    "timestamp": "11:51:12 AM"
   },
   "warnings": [],
   "errors": [],
-  "timestamp": "2026-09-16 04:13:09",
+  "timestamp": "2026-09-16 06:21:15",
   "metadata": {
     "attempt": 1,
-    "timeout_seconds": 5.0,
+    "timeout_seconds": 30.0,
     "idempotency_key": "INC-001:FRAME-000004:ROUTER_DISPATCH"
   }
 }

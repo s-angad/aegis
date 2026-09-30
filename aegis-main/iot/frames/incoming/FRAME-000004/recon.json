@@ -4,47 +4,84 @@
   "frame_id": "FRAME-000004",
   "incident_id": "INC-001",
   "status": "SUCCESS",
-  "confidence": 0.96,
+  "confidence": 0.99,
   "execution_time_ms": 0.0,
   "result": {
-    "situation_summary": "Aerial Recon: 2/16 sectors affected, overall flood coverage 3.3%. Critical sectors: None.",
+    "situation_summary": "Aerial Recon: 10/16 sectors affected, overall flood coverage 53.0%. Critical sectors: S2, S6, S7, S10, S11.",
     "affected_sectors": [
-      "S1",
-      "S2"
+      "S2",
+      "S3",
+      "S5",
+      "S6",
+      "S7",
+      "S9",
+      "S10",
+      "S11",
+      "S14",
+      "S15"
     ],
-    "critical_sectors": [],
+    "critical_sectors": [
+      "S2",
+      "S6",
+      "S7",
+      "S10",
+      "S11"
+    ],
     "affected_infrastructure": [
-      "ROAD:ROAD-H-S1",
-      "ROAD:ROAD-V-S1"
+      "ROAD:R02",
+      "ROAD:R03",
+      "ROAD:R05",
+      "ROAD:R06",
+      "ROAD:R07",
+      "ROAD:R09",
+      "ROAD:R10",
+      "ROAD:R11",
+      "ROAD:R14",
+      "ROAD:R15",
+      "ROAD:R18",
+      "ROAD:R19",
+      "BRIDGE:BRIDGE-01 (FAILED)"
     ],
-    "flood_coverage": 3.31,
-    "confidence": 0.96,
+    "flood_coverage": 53.0,
+    "confidence": 0.99,
     "observations": [
-      "Frame FRAME-000004 evaluated with Phase 3 CV.",
-      "Total flood coverage measured at 3.3%.",
-      "Detected 2 impacted infrastructure items."
+      "Frame FRAME-000004 evaluated.",
+      "Coverage measured at 53.0%."
     ],
     "warnings": [],
     "agent": "recon",
-    "status": "complete",
+    "status": "CRITICAL",
+    "summary": "Aerial Recon: 10/16 sectors affected, overall flood coverage 53.0%. Critical sectors: S2, S6, S7, S10, S11.",
     "source": "PHYSICAL_OBSERVATION",
     "source_frame": "FRAME-000004",
-    "timestamp": "9:43:06 AM",
+    "source_observation_id": "OBS-SIM-04-44f9a9",
+    "model": "SIMULATION",
+    "timestamp": "11:51:12 AM",
     "flood_detected": true,
-    "flood_coverage_percent": 3.31,
+    "flood_coverage_percent": 53.0,
     "blocked_roads": [
-      "ROAD-H-S1",
-      "ROAD-V-S1"
+      "R02",
+      "R03",
+      "R05",
+      "R06",
+      "R07",
+      "R09",
+      "R10",
+      "R11",
+      "R14",
+      "R15",
+      "R18",
+      "R19"
     ],
-    "bridge_status": "OPEN",
-    "affected_buildings": 12
+    "bridge_status": "FAILED",
+    "affected_buildings": 60
   },
   "warnings": [],
   "errors": [],
-  "timestamp": "2026-09-16 04:13:06",
+  "timestamp": "2026-09-16 06:21:13",
   "metadata": {
     "attempt": 1,
-    "timeout_seconds": 5.0,
+    "timeout_seconds": 30.0,
     "idempotency_key": "INC-001:FRAME-000004:RECON"
   }
 }

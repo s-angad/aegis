@@ -10,7 +10,9 @@ import re
 import socket
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Any, Set
+from typing import Dict, List, Any, Set, Optional
+import numpy as np
+import cv2
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Request
 from fastapi.responses import HTMLResponse, JSONResponse
@@ -29,20 +31,62 @@ logger = logging.getLogger("aegis-iot-gateway")
 import asyncio
 import sys
 
+import hashlib
+import uuid
+
 # Directory Paths for Frame Storage
 BASE_DIR = Path(__file__).resolve().parent.parent
 FRAMES_DIR = BASE_DIR / "frames"
 INCOMING_DIR = FRAMES_DIR / "incoming"
 PROCESSING_DIR = FRAMES_DIR / "processing"
 COMPLETED_DIR = FRAMES_DIR / "completed"
+SESSIONS_DIR = FRAMES_DIR / "sessions"
 
 # Ensure frame directories exist on disk
-for d in [INCOMING_DIR, PROCESSING_DIR, COMPLETED_DIR]:
+for d in [INCOMING_DIR, PROCESSING_DIR, COMPLETED_DIR, SESSIONS_DIR]:
     d.mkdir(parents=True, exist_ok=True)
 
 # Add parent iot directory to sys.path for Phase 3 CV module imports
 if str(BASE_DIR) not in sys.path:
     sys.path.insert(0, str(BASE_DIR))
+
+try:
+    from config.simulation_scenario import get_simulation_observation, TOTAL_SIMULATION_STEPS, SIMULATION_STEPS_META
+except ImportError:
+    from iot.config.simulation_scenario import get_simulation_observation, TOTAL_SIMULATION_STEPS, SIMULATION_STEPS_META
+
+CONTROLLED_SIMULATION_MODE = True
+current_simulation_step = 0
+
+def generate_session_id() -> str:
+    now_str = datetime.now().strftime("%Y%m%d-%H%M%S")
+    rand_hex = uuid.uuid4().hex[:4].upper()
+    return f"SIM-{now_str}-{rand_hex}"
+
+current_session_id = generate_session_id()
+
+def get_next_simulation_step() -> int:
+    global current_simulation_step
+    if current_simulation_step < TOTAL_SIMULATION_STEPS:
+        current_simulation_step += 1
+    return current_simulation_step
+
+def reset_simulation_step():
+    global current_simulation_step
+    current_simulation_step = 0
+
+def reset_controlled_simulation_state() -> str:
+    global current_session_id
+    current_session_id = generate_session_id()
+    reset_simulation_step()
+    device_manager.frame_history.clear()
+    device_manager.latest_frame = {}
+    frame_manager.frame_count = 0
+    if HAS_PHASE4A:
+        intelligence_state_manager.reset_state()
+    logger.info(f"[SIMULATION] Reset session state. NEW SESSION ID: {current_session_id}")
+    return current_session_id
+
 
 try:
     from cv.pipeline import pipeline_instance
@@ -72,33 +116,41 @@ except Exception as _e4:
     HAS_FRAME_TRACKER = False
 
 
-async def process_frame_closed_loop(frame_id: str, file_path: Path, device_id: str, timestamp_str: str, phone_ws: WebSocket):
+async def process_frame_closed_loop(
+    session_id: str,
+    frame_id: str,
+    file_path: Path,
+    device_id: str,
+    timestamp_str: str,
+    image_sha256: str,
+    image_size_bytes: int,
+    phone_ws: Optional[WebSocket]
+):
     """
-    Executes Phase 4B Closed-Loop pipeline:
-    1. RECEIVED -> QUEUED -> PROCESSING
-    2. Runs Phase 3 CV Pipeline (saves original.jpg, rectified.jpg, water-mask.png, water-overlay.jpg, analysis.json)
-    3. Runs Phase 4B 5-Agent OODA Pipeline (RECON -> VERIFIER -> PREDICTOR -> ORCHESTRATOR -> ROUTER_DISPATCH)
-    4. Saves individual agent result JSON files in frame folder (recon.json, verifier.json, predictor.json, orchestrator.json, dispatch.json)
-    5. Updates Digital Twin State
-    6. Streams real-time agent execution events to Dashboard
-    7. Updates Dashboard with completed result upon full completion
-    8. Sends ACK_NEXT to Smartphone WebSocket ONLY AFTER all 5 agents complete
+    Executes Phase 4B Closed-Loop pipeline with Session + Frame isolation and SHA256 verification.
     """
     if HAS_FRAME_TRACKER:
         frame_tracker.set_state(frame_id, FrameState.PROCESSING)
 
-    frame_folder = INCOMING_DIR / frame_id
+    frame_folder = SESSIONS_DIR / session_id / frame_id
     frame_folder.mkdir(parents=True, exist_ok=True)
 
-    image_url = f"/frames/incoming/{frame_id}/original.jpg"
+    v_time = int(datetime.now().timestamp() * 1000)
+    image_url = f"/frames/sessions/{session_id}/{frame_id}/original.jpg?v={v_time}"
+    logger.info(f"[DASHBOARD] Serving {session_id}/{frame_id} path={file_path} sha256={image_sha256}")
+
     coverage_meta = camera_calibrator.calculate_coverage(800, 800) if HAS_CV_PIPELINE else {
         "visible_percent": 100, "visible_width_cm": 80, "visible_height_cm": 80, "visible_area_cm2": 6400, "sectors_visible": "16 / 16", "status": "FULL"
     }
     image_meta = {
-        "original_url": f"/frames/incoming/{frame_id}/original.jpg",
-        "rectified_url": f"/frames/incoming/{frame_id}/rectified.jpg",
-        "water_mask_url": f"/frames/incoming/{frame_id}/water-mask.png",
-        "water_overlay_url": f"/frames/incoming/{frame_id}/water-overlay.jpg",
+        "session_id": session_id,
+        "frame_id": frame_id,
+        "original_url": image_url,
+        "rectified_url": image_url,
+        "water_mask_url": image_url,
+        "water_overlay_url": image_url,
+        "image_hash": image_sha256,
+        "image_size_bytes": image_size_bytes,
         "width": 800,
         "height": 800,
         "original": True
@@ -107,10 +159,14 @@ async def process_frame_closed_loop(frame_id: str, file_path: Path, device_id: s
     # 1. Notify Dashboard that frame processing has started
     await device_manager.broadcast({
         "type": "photo_received_processing",
+        "session_id": session_id,
         "frame_id": frame_id,
         "device_id": device_id,
         "image_url": image_url,
         "timestamp": timestamp_str,
+        "capture_timestamp": timestamp_str,
+        "image_hash": image_sha256,
+        "image_size_bytes": image_size_bytes,
         "status": "PROCESSING",
         "image": image_meta,
         "camera_coverage": coverage_meta,
@@ -118,13 +174,52 @@ async def process_frame_closed_loop(frame_id: str, file_path: Path, device_id: s
     })
 
     obs_dict = {}
-    if HAS_CV_PIPELINE:
+    sim_step = 1
+    if CONTROLLED_SIMULATION_MODE:
+        sim_step = get_next_simulation_step()
+        obs_dict = get_simulation_observation(
+            step=sim_step,
+            frame_id=frame_id,
+            session_id=session_id,
+            device_id=device_id,
+            timestamp_str=timestamp_str,
+            image_sha256=image_sha256,
+            image_size_bytes=image_size_bytes
+        )
+        obs_dict["image"]["original_url"] = image_url
+        obs_dict["image"]["original_path"] = str(file_path)
+        obs_dict["image"]["image_hash"] = image_sha256
+        obs_dict["image"]["image_size_bytes"] = image_size_bytes
+        if HAS_CV_PIPELINE:
+            try:
+                digital_twin_manager.update_from_observation(obs_dict)
+            except Exception as _dte:
+                logger.warning(f"Digital twin update warning: {_dte}")
+        await device_manager.broadcast({
+            "type": "phase3_observation",
+            "session_id": session_id,
+            "frame_id": frame_id,
+            "sequence": sim_step,
+            "image_url": image_url,
+            "image_hash": image_sha256,
+            "image_size_bytes": image_size_bytes,
+            "observation": obs_dict,
+            "simulation_step": sim_step,
+            "total_simulation_steps": TOTAL_SIMULATION_STEPS
+        })
+    elif HAS_CV_PIPELINE:
         try:
             obs = pipeline_instance.process_frame(frame_id, file_path, device_id, timestamp_str)
             obs_dict = obs.model_dump(mode="json")
+            obs_dict["session_id"] = session_id
             await device_manager.broadcast({
                 "type": "phase3_observation",
+                "session_id": session_id,
                 "frame_id": frame_id,
+                "sequence": sim_step,
+                "image_url": image_url,
+                "image_hash": image_sha256,
+                "image_size_bytes": image_size_bytes,
                 "observation": obs_dict
             })
         except Exception as e:
@@ -137,7 +232,7 @@ async def process_frame_closed_loop(frame_id: str, file_path: Path, device_id: s
         except Exception as e:
             logger.error(f"Error running Phase 4B OODA pipeline for {frame_id}: {e}")
 
-    # 4. Save per-frame agent result JSON files in frame directory
+    # Save per-frame agent result JSON files in frame directory
     agent_results = pipeline_res.get("results", {}) if isinstance(pipeline_res, dict) else {}
     
     with open(frame_folder / "recon.json", "w", encoding="utf-8") as f:
@@ -158,10 +253,15 @@ async def process_frame_closed_loop(frame_id: str, file_path: Path, device_id: s
     dt_state = digital_twin_manager.get_state_dict() if HAS_CV_PIPELINE else {}
 
     completed_payload = {
+        "session_id": session_id,
         "frame_id": frame_id,
+        "sequence": sim_step,
         "device_id": device_id,
         "image_url": image_url,
         "timestamp": timestamp_str,
+        "capture_timestamp": timestamp_str,
+        "image_hash": image_sha256,
+        "image_size_bytes": image_size_bytes,
         "status": "COMPLETED",
         "image": image_meta,
         "camera_coverage": coverage_meta,
@@ -170,6 +270,9 @@ async def process_frame_closed_loop(frame_id: str, file_path: Path, device_id: s
         "digital_twin": dt_state,
         "pipeline": pipeline_res,
         "agents": agent_results,
+        "simulation_step": sim_step,
+        "total_simulation_steps": TOTAL_SIMULATION_STEPS,
+        "simulation_complete": (sim_step >= TOTAL_SIMULATION_STEPS),
         "total_frames": len(device_manager.frame_history)
     }
 
@@ -183,22 +286,34 @@ async def process_frame_closed_loop(frame_id: str, file_path: Path, device_id: s
     })
 
     # 3. Send ACK_NEXT back to smartphone to authorize next capture
+    next_authorized = (sim_step < TOTAL_SIMULATION_STEPS) if CONTROLLED_SIMULATION_MODE else True
+    is_sim_done = (sim_step >= TOTAL_SIMULATION_STEPS) if CONTROLLED_SIMULATION_MODE else False
     if phone_ws:
         try:
             await phone_ws.send_json({
                 "type": "photo_ack",
+                "session_id": session_id,
                 "frame_id": frame_id,
+                "sequence": sim_step,
                 "device_id": device_id,
                 "status": "COMPLETED",
                 "frame_state": "ACKED",
                 "timestamp": datetime.now().strftime("%H:%M:%S"),
-                "next_capture_authorized": True
+                "image_url": image_url,
+                "image_hash": image_sha256,
+                "image_size_bytes": image_size_bytes,
+                "simulation_step": sim_step,
+                "total_steps": TOTAL_SIMULATION_STEPS,
+                "coverage_percent": obs_dict.get("flood", {}).get("coverage_percent", 0.0),
+                "next_capture_authorized": next_authorized,
+                "simulation_complete": is_sim_done
             })
             if HAS_FRAME_TRACKER:
                 frame_tracker.set_state(frame_id, FrameState.ACKED)
-            logger.info(f"✓ ACK_NEXT sent to {device_id} for {frame_id} (All 5 agents completed)")
+            logger.info(f"✓ ACK_NEXT sent to {device_id} for {session_id}/{frame_id} (Step {sim_step}/{TOTAL_SIMULATION_STEPS}, Next Authorized: {next_authorized})")
+
         except Exception as e:
-            logger.error(f"Failed to send ACK_NEXT to {device_id} for {frame_id}: {e}")
+            logger.error(f"Failed to send ACK_NEXT to {device_id} for {session_id}/{frame_id}: {e}")
 
 
 
@@ -249,42 +364,45 @@ def get_local_ipv4_addresses() -> List[str]:
 
 
 class FrameManager:
-    """Manages sequential Frame IDs and disk storage."""
+    """Manages sequential Frame IDs and session-isolated disk storage."""
 
     def __init__(self):
-        self.frame_count = self._count_existing_frames()
-
-    def _count_existing_frames(self) -> int:
-        count = 0
-        if INCOMING_DIR.exists():
-            for f in INCOMING_DIR.glob("FRAME-*.jpg"):
-                match = re.search(r"FRAME-(\d+)\.jpg", f.name)
-                if match:
-                    count = max(count, int(match.group(1)))
-        return count
+        self.frame_count = 0
 
     def get_next_frame_id(self) -> str:
         self.frame_count += 1
         return f"FRAME-{self.frame_count:06d}"
 
-    def save_base64_image(self, frame_id: str, base64_data: str) -> Path:
-        # Strip Data URL header if present (e.g. data:image/jpeg;base64,...)
+    def save_base64_image(self, session_id: str, frame_id: str, base64_data: str) -> tuple:
+        """
+        Decodes base64 string, computes sha256 hash, saves image into session directory:
+        iot/frames/sessions/{session_id}/{frame_id}/original.jpg
+        Returns: (file_path, image_sha256, image_size_bytes)
+        """
         if "," in base64_data:
             base64_data = base64_data.split(",", 1)[1]
 
-        # Ensure string is clean ascii
         base64_clean = base64_data.encode("ascii", errors="ignore").decode("ascii")
-
-        # Fix base64 padding if needed
         missing_padding = len(base64_clean) % 4
         if missing_padding:
             base64_clean += "=" * (4 - missing_padding)
 
         image_bytes = base64.b64decode(base64_clean)
-        file_path = INCOMING_DIR / f"{frame_id}.jpg"
+        image_sha256 = hashlib.sha256(image_bytes).hexdigest()
+        image_size_bytes = len(image_bytes)
+
+        frame_dir = SESSIONS_DIR / session_id / frame_id
+        frame_dir.mkdir(parents=True, exist_ok=True)
+
+        file_path = frame_dir / "original.jpg"
         with open(file_path, "wb") as f:
             f.write(image_bytes)
-        return file_path
+
+        logger.info(f"[CAMERA] Captured {session_id}/{frame_id} bytes={image_size_bytes} sha256={image_sha256}")
+        logger.info(f"[UPLOAD] Received {session_id}/{frame_id} bytes={image_size_bytes} sha256={image_sha256}")
+        logger.info(f"[STORAGE] Saved {session_id}/{frame_id} path={file_path} sha256={image_sha256}")
+
+        return file_path, image_sha256, image_size_bytes
 
 
 frame_manager = FrameManager()
@@ -489,6 +607,24 @@ async def websocket_endpoint(websocket: WebSocket):
                     "timestamp": hb_time
                 })
 
+            elif msg_type in ["restart_simulation", "simulation_reset"]:
+                new_session_id = reset_controlled_simulation_state()
+                logger.info(f"Controlled 6-Frame Simulation reset. NEW SESSION ID: {new_session_id}")
+                await device_manager.broadcast({
+                    "type": "simulation_reset",
+                    "session_id": new_session_id,
+                    "current_step": 0,
+                    "total_steps": TOTAL_SIMULATION_STEPS,
+                    "timestamp": datetime.now().strftime("%H:%M:%S")
+                })
+                await websocket.send_json({
+                    "type": "simulation_reset_ack",
+                    "session_id": new_session_id,
+                    "current_step": 0,
+                    "total_steps": TOTAL_SIMULATION_STEPS,
+                    "next_capture_authorized": True
+                })
+
             elif msg_type == "connection_test":
                 logger.info(f"[{datetime.now().strftime('%H:%M:%S')}] Connection test received from {device_id}")
                 logger.info(f"[{datetime.now().strftime('%H:%M:%S')}] Connection test passed")
@@ -514,34 +650,101 @@ async def websocket_endpoint(websocket: WebSocket):
                     })
                     continue
 
-                # Save frame image to incoming directory
-                file_path = frame_manager.save_base64_image(frame_id, base64_img)
-                image_url = f"/frames/incoming/{frame_id}.jpg"
+                # Save frame image into session-isolated folder & calculate SHA256 hash
+                file_path, image_sha256, image_size_bytes = frame_manager.save_base64_image(
+                    current_session_id, frame_id, base64_img
+                )
+                v_time = int(datetime.now().timestamp() * 1000)
+                image_url = f"/frames/sessions/{current_session_id}/{frame_id}/original.jpg?v={v_time}"
 
                 if HAS_FRAME_TRACKER:
                     frame_tracker.set_state(frame_id, FrameState.RECEIVED)
                     frame_tracker.set_state(frame_id, FrameState.QUEUED)
 
                 frame_info = {
+                    "session_id": current_session_id,
                     "frame_id": frame_id,
                     "device_id": device_id,
                     "image_url": image_url,
+                    "image_hash": image_sha256,
+                    "image_size_bytes": image_size_bytes,
                     "timestamp": timestamp_str,
                     "saved_path": str(file_path),
                     "state": "QUEUED"
                 }
                 device_manager.record_frame(frame_info)
 
-                logger.info(f"{frame_id} RECEIVED from {device_id} - Queued for 5-Agent Intelligence Pipeline")
+                logger.info(f"[{current_session_id}/{frame_id}] RECEIVED from {device_id} (bytes={image_size_bytes}, sha256={image_sha256[:12]}...) - Queued for 5-Agent Intelligence Pipeline")
 
-                # Trigger Phase 4B Closed-Loop pipeline (CV -> 5 Agents -> Dashboard -> ACK_NEXT to Phone)
-                asyncio.create_task(process_frame_closed_loop(frame_id, file_path, device_id, timestamp_str, websocket))
+                # Trigger Phase 4B Closed-Loop pipeline with Session + Frame isolation
+                asyncio.create_task(process_frame_closed_loop(
+                    session_id=current_session_id,
+                    frame_id=frame_id,
+                    file_path=file_path,
+                    device_id=device_id,
+                    timestamp_str=timestamp_str,
+                    image_sha256=image_sha256,
+                    image_size_bytes=image_size_bytes,
+                    phone_ws=websocket
+                ))
 
     except WebSocketDisconnect:
         device_manager.disconnect(websocket)
     except Exception as e:
         logger.error(f"WebSocket error for {assigned_device_id}: {e}")
         device_manager.disconnect(websocket)
+
+
+from fastapi.responses import FileResponse
+
+@app.get("/frames/sessions/{session_id}/{frame_id}/{filename}")
+async def get_session_frame_image(session_id: str, frame_id: str, filename: str):
+    """
+    Serves frame images isolated by session_id and frame_id.
+    Returns HTTP 404 with FRAME_NOT_FOUND error payload if requested file does not exist on disk.
+    """
+    file_path = SESSIONS_DIR / session_id / frame_id / filename
+    if not file_path.exists() or not file_path.is_file():
+        return JSONResponse(
+            status_code=404,
+            content={
+                "error": "FRAME_NOT_FOUND",
+                "message": f"Frame image for session '{session_id}', frame '{frame_id}', file '{filename}' was not found."
+            }
+        )
+    return FileResponse(path=file_path, media_type="image/jpeg")
+
+
+@app.post("/api/simulation/reset")
+async def reset_controlled_simulation():
+    """Resets the Controlled 6-Frame Simulation progression to Frame 0 and creates a new session."""
+    new_session_id = reset_controlled_simulation_state()
+    await device_manager.broadcast({
+        "type": "simulation_reset",
+        "session_id": new_session_id,
+        "current_step": 0,
+        "total_steps": TOTAL_SIMULATION_STEPS,
+        "timestamp": datetime.now().strftime("%H:%M:%S")
+    })
+    return JSONResponse({
+        "status": "success",
+        "message": "Controlled 6-Frame Simulation reset to Frame 0",
+        "session_id": new_session_id,
+        "current_step": 0,
+        "total_steps": TOTAL_SIMULATION_STEPS
+    })
+
+
+@app.get("/api/simulation/state")
+async def get_simulation_state():
+    """Returns current state of the 6-Frame Controlled Simulation."""
+    return JSONResponse({
+        "simulation_mode": CONTROLLED_SIMULATION_MODE,
+        "session_id": current_session_id,
+        "current_step": current_simulation_step,
+        "total_steps": TOTAL_SIMULATION_STEPS,
+        "steps_meta": SIMULATION_STEPS_META
+    })
 
 
 @app.get("/api/calibration")
@@ -623,7 +826,7 @@ async def trigger_demo_simulation_frame():
     frame_id = f"FRAME-DEMO-{demo_step:04d}"
     timestamp_str = datetime.now().strftime("%H:%M:%S")
 
-    frame_folder = INCOMING_DIR / frame_id
+    frame_folder = SESSIONS_DIR / current_session_id / frame_id
     frame_folder.mkdir(parents=True, exist_ok=True)
     file_path = frame_folder / "original.jpg"
 
@@ -655,14 +858,30 @@ async def trigger_demo_simulation_frame():
         cv2.rectangle(img, (400, 600), (600, 800), (220, 100, 20), -1) # Blue water in S15
 
     cv2.imwrite(str(file_path), img)
+    with open(file_path, "rb") as f:
+        img_bytes = f.read()
+    image_sha256 = hashlib.sha256(img_bytes).hexdigest()
+    image_size_bytes = len(img_bytes)
 
     # Execute Closed-Loop pipeline asynchronously
-    asyncio.create_task(process_frame_closed_loop(frame_id, file_path, "DEMO-NODE", timestamp_str, None))
+    asyncio.create_task(process_frame_closed_loop(
+        session_id=current_session_id,
+        frame_id=frame_id,
+        file_path=file_path,
+        device_id="DEMO-NODE",
+        timestamp_str=timestamp_str,
+        image_sha256=image_sha256,
+        image_size_bytes=image_size_bytes,
+        phone_ws=None
+    ))
 
     return JSONResponse({
         "status": "success",
+        "session_id": current_session_id,
         "frame_id": frame_id,
         "demo_step": demo_step,
+        "image_hash": image_sha256,
+        "image_size_bytes": image_size_bytes,
         "mode": "DEMO_SIMULATION_REPLAY"
     })
 
@@ -1108,7 +1327,13 @@ async def get_mobile_ui(request: Request):
                 </svg>
             </div>
             <div class="title">AEGIS FLOOD</div>
-            <div class="subtitle">AUTOMATIC AERIAL SENSOR NODE (PHASE 2B)</div>
+            <div class="subtitle">CONTROLLED 6-FRAME AI FLOOD SIMULATION</div>
+        </div>
+
+        <!-- CONTROLLED SIMULATION BANNER -->
+        <div style="background: rgba(6, 182, 212, 0.15); border: 1px solid rgba(6, 182, 212, 0.4); border-radius: 12px; padding: 8px 12px; text-align: center; font-family: monospace; font-size: 10px; color: var(--cyan-bright); font-weight: 800;">
+            🔬 CONTROLLED SIMULATION MODE<br>
+            <span style="font-size: 9px; color: var(--text-muted);">Real Camera Photo Evidence + Synthetic Disaster Progression (0% ➔ 93%)</span>
         </div>
 
         <!-- MAIN CARD -->
@@ -1167,13 +1392,16 @@ async def get_mobile_ui(request: Request):
             <!-- INTERVAL BAR -->
             <div class="interval-bar">
                 <span>CAPTURE INTERVAL</span>
-                <span id="intervalVal">5 SECONDS</span>
+                <span id="intervalVal">3 SECONDS</span>
             </div>
 
             <!-- STREAM CONTROL ACTION -->
             <div class="control-group">
                 <button id="stopStreamBtn" class="btn-stream stop-mode" onclick="toggleStopResume()">
                     🛑 STOP STREAM
+                </button>
+                <button id="restartSimBtn" class="btn-stream resume-mode" style="display:none;" onclick="restartSimulation()">
+                    🔄 RESTART 6-FRAME SIMULATION
                 </button>
             </div>
 
@@ -1190,6 +1418,10 @@ async def get_mobile_ui(request: Request):
                     <span class="metric-value highlight">PHONE-01</span>
                 </div>
                 <div class="metric-row">
+                    <span class="metric-label">SIMULATION STEP</span>
+                    <span id="simStepVal" class="metric-value highlight">Step 0 / 6 (0%)</span>
+                </div>
+                <div class="metric-row">
                     <span class="metric-label">SECURE CONTEXT</span>
                     <span id="secureCtxVal" class="metric-value">CHECKING...</span>
                 </div>
@@ -1200,6 +1432,18 @@ async def get_mobile_ui(request: Request):
                 <div class="metric-row">
                     <span class="metric-label">STREAM STATUS</span>
                     <span id="streamStatusVal" class="metric-value active">● STARTING</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">SESSION ID</span>
+                    <span id="sessionIdVal" class="metric-value highlight">STANDBY</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">IMAGE HASH (SHA256)</span>
+                    <span id="imageHashVal" class="metric-value highlight">--</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">IMAGE SIZE</span>
+                    <span id="imageSizeVal" class="metric-value highlight">--</span>
                 </div>
                 <div class="metric-row">
                     <span class="metric-label">FRAMES SENT</span>
@@ -1227,7 +1471,7 @@ async def get_mobile_ui(request: Request):
     <canvas id="hiddenCanvas"></canvas>
 
     <script>
-        const CAPTURE_INTERVAL_MS = 5000;
+        const CAPTURE_INTERVAL_MS = 3000;
 
         let ws = null;
         let heartbeatInterval = null;
@@ -1326,7 +1570,11 @@ async def get_mobile_ui(request: Request):
             ws.onmessage = function(event) {
                 try {
                     const data = JSON.parse(event.data);
-                    if (data.type === "heartbeat_ack") {
+                    if (data.type === "device_registered" || data.type === "simulation_reset") {
+                        if (data.session_id) {
+                            document.getElementById("sessionIdVal").innerText = data.session_id;
+                        }
+                    } else if (data.type === "heartbeat_ack") {
                         document.getElementById("heartbeatVal").innerText = data.timestamp || new Date().toLocaleTimeString();
                     } else if (data.type === "photo_ack") {
                         onPhotoAck(data);
@@ -1542,27 +1790,81 @@ async def get_mobile_ui(request: Request):
             isProcessingFrame = false;
             framesSentCount++;
             
+            if (data.session_id) document.getElementById("sessionIdVal").innerText = data.session_id;
+            if (data.image_hash) document.getElementById("imageHashVal").innerText = data.image_hash.substring(0, 12) + "...";
+            if (data.image_size_bytes) document.getElementById("imageSizeVal").innerText = (data.image_size_bytes / 1024).toFixed(1) + " KB";
+
             document.getElementById("sentCountVal").innerText = framesSentCount;
             document.getElementById("lastFrameVal").innerText = data.frame_id;
             document.getElementById("lastTxVal").innerText = "ACK_NEXT RECEIVED";
 
+            const step = data.simulation_step || framesSentCount;
+            const total = data.total_steps || 6;
+            const cov = (data.coverage_percent !== undefined) ? data.coverage_percent.toFixed(1) : "0.0";
+            
+            document.getElementById("simStepVal").innerText = `Step ${step} / ${total} (${cov}%)`;
+
             const resultBanner = document.getElementById("resultBanner");
             resultBanner.style.display = "block";
-            resultBanner.style.background = "rgba(16, 185, 129, 0.15)";
-            resultBanner.style.borderColor = "rgba(16, 185, 129, 0.4)";
-            resultBanner.style.color = "var(--emerald-accent)";
-            document.getElementById("resultTitle").innerText = "✓ 5-AGENT PIPELINE COMPLETE";
-            document.getElementById("resultSubtitle").innerText = "Frame: " + data.frame_id + " | Next Frame Authorized";
 
-            const elapsed = Date.now() - captureStartTime;
-            const remaining = Math.max(500, CAPTURE_INTERVAL_MS - elapsed);
+            if (data.simulation_complete) {
+                isStreaming = false;
+                if (streamIntervalTimer) clearTimeout(streamIntervalTimer);
+                streamIntervalTimer = null;
 
-            console.log(`[Closed-Loop ACK] Frame ${data.frame_id} completed in ${elapsed}ms. Next capture in ${remaining}ms.`);
+                resultBanner.style.background = "rgba(6, 182, 212, 0.2)";
+                resultBanner.style.borderColor = "var(--cyan-bright)";
+                resultBanner.style.color = "var(--cyan-bright)";
+                document.getElementById("resultTitle").innerText = "🎉 6-FRAME SIMULATION COMPLETE";
+                document.getElementById("resultSubtitle").innerText = `Frame: ${data.frame_id} | Final Coverage: ${cov}% | ALL 6 STEPS PROCESSED`;
 
-            if (streamIntervalTimer) clearTimeout(streamIntervalTimer);
-            if (isStreaming) {
-                streamIntervalTimer = setTimeout(triggerFrameCapture, remaining);
+                document.getElementById("streamStatusVal").innerText = "● SIMULATION COMPLETE";
+                document.getElementById("streamStatusVal").className = "metric-value active";
+
+                document.getElementById("restartSimBtn").style.display = "flex";
+                stopStreamBtn.style.display = "none";
+
+                console.log(`[Closed-Loop ACK] 6-Frame Simulation Complete! Frame ${data.frame_id} reached ${cov}% coverage.`);
+            } else {
+                resultBanner.style.background = "rgba(16, 185, 129, 0.15)";
+                resultBanner.style.borderColor = "rgba(16, 185, 129, 0.4)";
+                resultBanner.style.color = "var(--emerald-accent)";
+                document.getElementById("resultTitle").innerText = "✓ 5-AGENT PIPELINE COMPLETE";
+                document.getElementById("resultSubtitle").innerText = `Frame: ${data.frame_id} (Step ${step}/${total}: ${cov}%) | Next Frame Authorized`;
+
+                const elapsed = Date.now() - captureStartTime;
+                const remaining = Math.max(500, CAPTURE_INTERVAL_MS - elapsed);
+
+                console.log(`[Closed-Loop ACK] Frame ${data.frame_id} (Step ${step}/${total}) completed in ${elapsed}ms. Next capture in ${remaining}ms.`);
+
+                if (streamIntervalTimer) clearTimeout(streamIntervalTimer);
+                if (isStreaming) {
+                    streamIntervalTimer = setTimeout(triggerFrameCapture, remaining);
+                }
             }
+        }
+
+        async function restartSimulation() {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({ type: "restart_simulation" }));
+            } else {
+                await fetch("/api/simulation/reset", { method: "POST" });
+            }
+            
+            frameCounter = 0;
+            framesSentCount = 0;
+            isProcessingFrame = false;
+            
+            document.getElementById("sentCountVal").innerText = "0";
+            document.getElementById("lastFrameVal").innerText = "Waiting";
+            document.getElementById("simStepVal").innerText = "Step 0 / 6 (0%)";
+            document.getElementById("restartSimBtn").style.display = "none";
+            stopStreamBtn.style.display = "flex";
+
+            const resultBanner = document.getElementById("resultBanner");
+            resultBanner.style.display = "none";
+
+            startCaptureLoop();
         }
 
         window.addEventListener("DOMContentLoaded", () => {
@@ -2203,15 +2505,58 @@ async def get_laptop_dashboard(request: Request):
             <div class="pill" id="pill-predictor"><span style="color: var(--text-muted);">○ PREDICTOR</span></div>
             <div class="pill" id="pill-orchestrator"><span style="color: var(--text-muted);">○ ORCHESTRATOR</span></div>
             <div class="pill" id="pill-router"><span style="color: var(--text-muted);">○ ROUTER</span></div>
+            <button class="btn-calib" style="background: linear-gradient(135deg, rgba(6, 182, 212, 0.3), rgba(16, 185, 129, 0.3)); border-color: var(--cyan-bright);" onclick="restartDashboardSimulation()">🔄 RESTART SIMULATION</button>
             <button class="btn-calib" id="btnTriggerDemo" style="display:none; background: linear-gradient(135deg, rgba(245, 158, 11, 0.3), rgba(244, 63, 94, 0.3)); border-color: var(--amber-accent);" onclick="triggerDemoStep()">▶ TRIGGER DEMO STEP</button>
             <button class="btn-calib" onclick="toggleMode()">🔄 TOGGLE MODE</button>
             <button class="btn-calib" onclick="openCalibrationModal()">📐 CALIBRATION</button>
         </div>
     </div>
 
-    <!-- SIMULATION NOTICE BANNER (SECTION 24 REQUIREMENT) -->
-    <div style="padding: 8px 16px; background: rgba(245, 158, 11, 0.12); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 12px; font-size: 11px; font-family: monospace; font-weight: 800; color: var(--amber-accent); text-align: center; margin-bottom: 16px; max-width: 1400px; margin-left: auto; margin-right: auto;">
-        ⚠️ SIMULATION MODE — Real Smartphone Evidence Photos + Synchronized Digital Twin + Simulated 5-Agent Intelligence Pipeline
+    <!-- CONTROLLED SIMULATION HEADER & PROGRESSION BAR -->
+    <div style="background: rgba(13, 20, 36, 0.9); border: 1px solid rgba(6, 182, 212, 0.4); border-radius: 16px; padding: 14px 20px; margin-bottom: 20px; max-width: 1400px; margin-left: auto; margin-right: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.4);">
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 10px;">
+            <div>
+                <span style="font-size: 13px; font-family: monospace; font-weight: 900; color: var(--cyan-bright);">🔬 CONTROLLED 6-FRAME AI FLOOD SIMULATION MODE</span>
+                <span style="font-size: 11px; font-family: monospace; color: var(--text-muted); margin-left: 8px;">(Real Smartphone Photo Evidence + Deterministic Synthetic Progression Ground-Truth)</span>
+            </div>
+            <div style="font-size: 10px; font-family: monospace; font-weight: 800; color: var(--emerald-accent); background: rgba(16, 185, 129, 0.15); padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(16, 185, 129, 0.3);" id="simStepHeaderTag">
+                PROGRESS: 0 / 6 FRAMES PROCESSED
+            </div>
+        </div>
+        
+        <!-- 6-STEP PROGRESSION PIPELINE -->
+        <div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px;" id="simProgressionBar">
+            <div class="step-card" id="step-card-1" style="background: rgba(7, 11, 20, 0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 8px; text-align: center; font-family: monospace;">
+                <div style="font-size: 10px; font-weight: 800; color: var(--cyan-bright);">FRAME 1</div>
+                <div style="font-size: 14px; font-weight: 900; color: var(--emerald-accent);">0%</div>
+                <div style="font-size: 8px; color: var(--text-muted);">Baseline Dry</div>
+            </div>
+            <div class="step-card" id="step-card-2" style="background: rgba(7, 11, 20, 0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 8px; text-align: center; font-family: monospace;">
+                <div style="font-size: 10px; font-weight: 800; color: var(--cyan-bright);">FRAME 2</div>
+                <div style="font-size: 14px; font-weight: 900; color: var(--amber-accent);">14%</div>
+                <div style="font-size: 8px; color: var(--text-muted);">River Overflow</div>
+            </div>
+            <div class="step-card" id="step-card-3" style="background: rgba(7, 11, 20, 0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 8px; text-align: center; font-family: monospace;">
+                <div style="font-size: 10px; font-weight: 800; color: var(--cyan-bright);">FRAME 3</div>
+                <div style="font-size: 14px; font-weight: 900; color: var(--amber-accent);">27%</div>
+                <div style="font-size: 8px; color: var(--text-muted);">Corridor Inundated</div>
+            </div>
+            <div class="step-card" id="step-card-4" style="background: rgba(7, 11, 20, 0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 8px; text-align: center; font-family: monospace;">
+                <div style="font-size: 10px; font-weight: 800; color: var(--cyan-bright);">FRAME 4</div>
+                <div style="font-size: 14px; font-weight: 900; color: var(--rose-accent);">53%</div>
+                <div style="font-size: 8px; color: var(--text-muted);">Urban Emergency</div>
+            </div>
+            <div class="step-card" id="step-card-5" style="background: rgba(7, 11, 20, 0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 8px; text-align: center; font-family: monospace;">
+                <div style="font-size: 10px; font-weight: 800; color: var(--cyan-bright);">FRAME 5</div>
+                <div style="font-size: 14px; font-weight: 900; color: var(--rose-accent);">66%</div>
+                <div style="font-size: 8px; color: var(--text-muted);">Critical Crisis</div>
+            </div>
+            <div class="step-card" id="step-card-6" style="background: rgba(7, 11, 20, 0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 8px; text-align: center; font-family: monospace;">
+                <div style="font-size: 10px; font-weight: 800; color: var(--cyan-bright);">FRAME 6</div>
+                <div style="font-size: 14px; font-weight: 900; color: var(--rose-accent);">93%</div>
+                <div style="font-size: 8px; color: var(--text-muted);">Catastrophe</div>
+            </div>
+        </div>
     </div>
 
     <!-- TIMELINE CONTAINER -->
@@ -2278,7 +2623,12 @@ async def get_laptop_dashboard(request: Request):
             ws.onmessage = function(event) {
                 try {
                     const data = JSON.parse(event.data);
-                    if (data.type === "photo_received" || data.type === "photo_received_processing") {
+                    if (data.type === "simulation_reset") {
+                        framesMap = {};
+                        framesOrder = [];
+                        updateProgressionBarUI(0);
+                        renderTimeline();
+                    } else if (data.type === "photo_received" || data.type === "photo_received_processing") {
                         onPhotoProcessingStarted(data);
                     } else if (data.type === "photo_received_complete") {
                         onPhotoReceivedComplete(data);
@@ -2329,6 +2679,51 @@ async def get_laptop_dashboard(request: Request):
             }
         }
 
+        function restartDashboardSimulation() {
+            fetch("/api/simulation/reset", { method: "POST" })
+                .then(r => r.json())
+                .then(d => {
+                    console.log("Controlled simulation reset:", d);
+                    framesMap = {};
+                    framesOrder = [];
+                    updateProgressionBarUI(0);
+                    renderTimeline();
+                })
+                .catch(e => console.error("Error resetting controlled simulation:", e));
+        }
+
+        function updateProgressionBarUI(step) {
+            const headerTag = document.getElementById("simStepHeaderTag");
+            if (headerTag) {
+                if (step >= 6) {
+                    headerTag.innerText = "PROGRESS: 6 / 6 FRAMES (SIMULATION COMPLETE)";
+                    headerTag.style.color = "var(--cyan-bright)";
+                    headerTag.style.borderColor = "var(--cyan-bright)";
+                } else {
+                    headerTag.innerText = `PROGRESS: ${step} / 6 FRAMES PROCESSED`;
+                    headerTag.style.color = "var(--emerald-accent)";
+                }
+            }
+
+            for (let s = 1; s <= 6; s++) {
+                const card = document.getElementById(`step-card-${s}`);
+                if (!card) continue;
+                if (s === step) {
+                    card.style.background = "rgba(6, 182, 212, 0.25)";
+                    card.style.borderColor = "var(--cyan-bright)";
+                    card.style.boxShadow = "0 0 15px rgba(6, 182, 212, 0.4)";
+                } else if (s < step) {
+                    card.style.background = "rgba(16, 185, 129, 0.15)";
+                    card.style.borderColor = "rgba(16, 185, 129, 0.4)";
+                    card.style.boxShadow = "none";
+                } else {
+                    card.style.background = "rgba(7, 11, 20, 0.8)";
+                    card.style.borderColor = "rgba(255, 255, 255, 0.1)";
+                    card.style.boxShadow = "none";
+                }
+            }
+        }
+
         function triggerDemoStep() {
             fetch("/api/demo/trigger_frame", { method: "POST" })
                 .then(r => r.json())
@@ -2341,20 +2736,28 @@ async def get_laptop_dashboard(request: Request):
         function onPhotoProcessingStarted(data) {
             document.getElementById("streamPill").innerText = "STREAM: PROCESSING (" + data.frame_id + ")";
             
-            if (!framesMap[data.frame_id]) {
-                framesMap[data.frame_id] = {
+            if (data.simulation_step) {
+                updateProgressionBarUI(data.simulation_step);
+            }
+
+            const frameKey = (data.session_id ? data.session_id + "_" : "") + data.frame_id;
+            if (!framesMap[frameKey]) {
+                framesMap[frameKey] = {
+                    session_id: data.session_id,
                     frame_id: data.frame_id,
                     device_id: data.device_id || "PHONE-01",
                     image_url: data.image_url,
+                    image_hash: data.image_hash,
+                    image_size_bytes: data.image_size_bytes,
                     timestamp: data.timestamp || new Date().toLocaleTimeString(),
                     status: "PROCESSING",
                     observation: null,
                     pipeline: null,
                     digital_twin: null
                 };
-                framesOrder.unshift(data.frame_id);
+                framesOrder.unshift(frameKey);
             } else {
-                framesMap[data.frame_id].status = "PROCESSING";
+                framesMap[frameKey].status = "PROCESSING";
             }
             
             updateAgentPills({ 'recon': 'running', 'verifier': 'idle', 'predictor': 'idle', 'orchestrator': 'idle', 'router_dispatch': 'idle' });
@@ -2364,14 +2767,22 @@ async def get_laptop_dashboard(request: Request):
         function onPhotoReceivedComplete(data) {
             document.getElementById("streamPill").innerText = "STREAM: READY (ACK SENT)";
             
-            if (!framesMap[data.frame_id]) {
-                framesOrder.unshift(data.frame_id);
+            if (data.simulation_step) {
+                updateProgressionBarUI(data.simulation_step);
+            }
+
+            const frameKey = (data.session_id ? data.session_id + "_" : "") + data.frame_id;
+            if (!framesMap[frameKey]) {
+                framesOrder.unshift(frameKey);
             }
             
-            framesMap[data.frame_id] = {
+            framesMap[frameKey] = {
+                session_id: data.session_id,
                 frame_id: data.frame_id,
                 device_id: data.device_id || "PHONE-01",
                 image_url: data.image_url,
+                image_hash: data.image_hash,
+                image_size_bytes: data.image_size_bytes,
                 timestamp: data.timestamp,
                 status: "COMPLETED",
                 camera_coverage: data.camera_coverage,
@@ -2389,9 +2800,9 @@ async def get_laptop_dashboard(request: Request):
         }
 
         function onPhase3Observation(data) {
-            const frameId = data.frame_id;
-            if (framesMap[frameId]) {
-                framesMap[frameId].observation = data.observation;
+            const frameKey = (data.session_id ? data.session_id + "_" : "") + data.frame_id;
+            if (framesMap[frameKey]) {
+                framesMap[frameKey].observation = data.observation;
                 renderTimeline();
             }
         }
@@ -2403,9 +2814,9 @@ async def get_laptop_dashboard(request: Request):
         }
 
         function onPhase4aPipelineComplete(data) {
-            const frameId = data.frame_id || (framesOrder.length > 0 ? framesOrder[0] : null);
-            if (frameId && framesMap[frameId]) {
-                framesMap[frameId].pipeline = data.pipeline || data;
+            const frameKey = (data.session_id ? data.session_id + "_" : "") + (data.frame_id || (framesOrder.length > 0 ? framesOrder[0] : null));
+            if (frameKey && framesMap[frameKey]) {
+                framesMap[frameKey].pipeline = data.pipeline || data;
                 renderTimeline();
             }
         }
@@ -2432,8 +2843,8 @@ async def get_laptop_dashboard(request: Request):
 
             let html = "";
             for (let i = 0; i < framesOrder.length; i++) {
-                const frameId = framesOrder[i];
-                const frame = framesMap[frameId];
+                const frameKey = framesOrder[i];
+                const frame = framesMap[frameKey];
                 const prevFrame = (i < framesOrder.length - 1) ? framesMap[framesOrder[i + 1]] : null;
                 html += generateFrameCardHTML(frame, prevFrame);
             }
@@ -2577,6 +2988,16 @@ async def get_laptop_dashboard(request: Request):
             }
 
             const isProc = (frame.status === "PROCESSING");
+            const pipelineInfo = frame.pipeline || {};
+            const isRealGpt = (pipelineInfo.agent_mode === "REAL" || (reconRes && reconRes.source === "GPT_5_6_LUNA"));
+            const agentModeChip = isRealGpt 
+                ? `<span class="chip" style="background: rgba(56,189,248,0.15); color: #38bdf8; border: 1px solid rgba(56,189,248,0.3);">🤖 GPT-POWERED (${pipelineInfo.agent_model || 'gpt-5.6-luna'})</span>`
+                : `<span class="chip" style="background: rgba(245,158,11,0.15); color: #f59e0b; border: 1px solid rgba(245,158,11,0.3);">⚙️ SIMULATION MODE</span>`;
+
+            const hashShort = frame.image_hash ? frame.image_hash.substring(0, 12) + "..." : "--";
+            const sizeKb = frame.image_size_bytes ? (frame.image_size_bytes / 1024).toFixed(1) + " KB" : "--";
+            const sessionTag = frame.session_id || "GLOBAL";
+            const diagnosticBadge = `<span class="chip" style="background: rgba(168,85,247,0.15); color: #c084fc; border: 1px solid rgba(168,85,247,0.3);">🔑 ${sessionTag} | SHA256: ${hashShort} | ${sizeKb}</span>`;
 
             return `
                 <div class="frame-card ${isProc ? 'processing' : 'completed'}">
@@ -2588,7 +3009,8 @@ async def get_laptop_dashboard(request: Request):
                             <div class="frame-meta-chips">
                                 <span class="chip highlight">${frame.device_id}</span>
                                 <span class="chip">${frame.timestamp}</span>
-                                <span class="chip">800 × 800 px</span>
+                                ${diagnosticBadge}
+                                ${agentModeChip}
                                 <span class="chip ${isProc ? 'status-proc' : 'status-done'}">
                                     ${isProc ? '⌛ PROCESSING (5 AGENTS)' : '✓ 5-AGENT OODA COMPLETE'}
                                 </span>

@@ -14,6 +14,7 @@ from .events import event_bus, EventBus, IntelligenceEvent, EventTypes
 from ..schemas.context import AgentContext
 from ..schemas.results import AgentResult, AgentStatus
 from ..schemas.frame_state import frame_tracker, FrameState
+from ..services.openai_service import openai_agent_service
 
 logger = logging.getLogger("aegis-ooda-engine")
 
@@ -198,10 +199,15 @@ class OODAEngine:
             }
         ))
 
+        agent_mode = "REAL" if openai_agent_service.is_available() else "SIMULATION"
+        agent_model = openai_agent_service.model if openai_agent_service.is_available() else "SIMULATION"
+
         return {
             "status": "FAILED" if pipeline_failed else "SUCCESS",
             "frame_id": frame_id,
             "incident_id": inc.incident_id,
+            "agent_mode": agent_mode,
+            "agent_model": agent_model,
             "total_latency_ms": total_latency_ms,
             "agent_statuses": self.state_manager.get_agent_statuses(),
             "results": {name: res.model_dump(mode="json") for name, res in pipeline_results.items()}

@@ -1,0 +1,183 @@
+{
+  "agent": "ROUTER_DISPATCH",
+  "agent_version": "1.0.0",
+  "frame_id": "FRAME-000003",
+  "incident_id": "INC-001",
+  "status": "SUCCESS",
+  "confidence": 0.88,
+  "execution_time_ms": 0.0,
+  "result": {
+    "dispatches": [
+      {
+        "resource": "BOAT-01",
+        "destination": "S2",
+        "priority": "CRITICAL"
+      },
+      {
+        "resource": "BOAT-01",
+        "destination": "S2",
+        "priority": "CRITICAL"
+      },
+      {
+        "resource": "BOAT-01",
+        "destination": "S6",
+        "priority": "CRITICAL"
+      },
+      {
+        "resource": "BOAT-01",
+        "destination": "S6",
+        "priority": "CRITICAL"
+      },
+      {
+        "resource": "BOAT-01",
+        "destination": "S7",
+        "priority": "CRITICAL"
+      },
+      {
+        "resource": "BOAT-01",
+        "destination": "S7",
+        "priority": "CRITICAL"
+      },
+      {
+        "resource": "BOAT-01",
+        "destination": "S10",
+        "priority": "CRITICAL"
+      },
+      {
+        "resource": "BOAT-01",
+        "destination": "S10",
+        "priority": "CRITICAL"
+      },
+      {
+        "resource": "BOAT-01",
+        "destination": "S11",
+        "priority": "CRITICAL"
+      },
+      {
+        "resource": "BOAT-01",
+        "destination": "S11",
+        "priority": "CRITICAL"
+      }
+    ],
+    "routes": [
+      {
+        "resource": "BOAT-01",
+        "from": "BASE-HQ",
+        "to": "S2",
+        "route": [
+          "R01",
+          "S2"
+        ]
+      },
+      {
+        "resource": "BOAT-01",
+        "from": "BASE-HQ",
+        "to": "S2",
+        "route": [
+          "R01",
+          "S2"
+        ]
+      },
+      {
+        "resource": "BOAT-01",
+        "from": "BASE-HQ",
+        "to": "S6",
+        "route": [
+          "R01",
+          "S6"
+        ]
+      },
+      {
+        "resource": "BOAT-01",
+        "from": "BASE-HQ",
+        "to": "S6",
+        "route": [
+          "R01",
+          "S6"
+        ]
+      },
+      {
+        "resource": "BOAT-01",
+        "from": "BASE-HQ",
+        "to": "S7",
+        "route": [
+          "R01",
+          "S7"
+        ]
+      },
+      {
+        "resource": "BOAT-01",
+        "from": "BASE-HQ",
+        "to": "S7",
+        "route": [
+          "R01",
+          "S7"
+        ]
+      },
+      {
+        "resource": "BOAT-01",
+        "from": "BASE-HQ",
+        "to": "S10",
+        "route": [
+          "R01",
+          "S10"
+        ]
+      },
+      {
+        "resource": "BOAT-01",
+        "from": "BASE-HQ",
+        "to": "S10",
+        "route": [
+          "R01",
+          "S10"
+        ]
+      },
+      {
+        "resource": "BOAT-01",
+        "from": "BASE-HQ",
+        "to": "S11",
+        "route": [
+          "R01",
+          "S11"
+        ]
+      },
+      {
+        "resource": "BOAT-01",
+        "from": "BASE-HQ",
+        "to": "S11",
+        "route": [
+          "R01",
+          "S11"
+        ]
+      }
+    ],
+    "blocked_roads": [
+      "R02",
+      "R06",
+      "R07",
+      "R10",
+      "R11",
+      "R18"
+    ],
+    "alternative_routes": [],
+    "estimated_times": {},
+    "confidence": 0.88,
+    "agent": "router_dispatch",
+    "status": "complete",
+    "dispatch_status": "READY",
+    "network_status": "DISPATCHED",
+    "source": "ROUTING_AND_DISPATCH",
+    "source_frame": "FRAME-000003",
+    "source_observation_id": "OBS-SIM-SIM-20260916-143044-FC72-03",
+    "model": "SIMULATION",
+    "timestamp": "2:31:46 PM"
+  },
+  "warnings": [],
+  "errors": [],
+  "timestamp": "2026-09-16 09:01:49",
+  "metadata": {
+    "attempt": 1,
+    "timeout_seconds": 30.0,
+    "idempotency_key": "INC-001:FRAME-000003:ROUTER_DISPATCH"
+  }
+}
